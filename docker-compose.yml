@@ -5,6 +5,7 @@ services:
     ports:
       - "51111:51111"
     volumes:
+      - ./backend/static:/app/static
       - chatraw_data:/app/data
     environment:
       - PORT=51111

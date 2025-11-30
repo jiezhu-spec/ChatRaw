@@ -20,8 +20,13 @@ const i18n = {
         inputPlaceholder: 'Type a message... (Enter to send, Shift+Enter for new line)',
         modelConfig: 'Models',
         chatSettings: 'Chat',
+        chatSettingsDesc: 'Adjust how the AI responds to your inputs.',
         ragSettings: 'RAG',
+        ragSettingsDesc: 'Configure retrieval augmented generation parameters.',
         uiSettings: 'Interface',
+        uiSettingsDesc: 'Customize the interface appearance.',
+        kbDesc: 'Upload documents for RAG context.',
+        modelConfigDesc: 'Manage your AI model connections and parameters.',
         modelType: 'Type',
         chat: 'Chat',
         embedding: 'Embedding',
@@ -69,7 +74,13 @@ const i18n = {
         settingsSaved: 'Settings saved',
         sendFailed: 'Send failed',
         createChatFailed: 'Failed to create chat',
-        documentDeleted: 'Document deleted'
+        documentDeleted: 'Document deleted',
+        logoName: 'Logo & Name',
+        uploadUserAvatar: 'Upload User Avatar',
+        uploadAIAvatar: 'Upload AI Avatar',
+        active: 'Active',
+        error: 'Error',
+        apacheLicense: 'Apache 2.0 License'
     },
     zh: {
         newChat: '新对话',
@@ -88,9 +99,14 @@ const i18n = {
         imageSelected: '已选择图片',
         inputPlaceholder: '输入消息... (Enter 发送, Shift+Enter 换行)',
         modelConfig: '模型配置',
+        modelConfigDesc: '管理您的AI模型连接和参数',
         chatSettings: '聊天设置',
+        chatSettingsDesc: '调整AI对您输入的响应方式',
         ragSettings: 'RAG设置',
+        ragSettingsDesc: '配置检索增强生成 (RAG) 参数',
         uiSettings: '界面设置',
+        uiSettingsDesc: '自定义界面外观',
+        kbDesc: '上传用于RAG上下文的文档',
         modelType: '类型',
         chat: '聊天',
         embedding: '嵌入',
@@ -138,7 +154,13 @@ const i18n = {
         settingsSaved: '设置已保存',
         sendFailed: '发送失败',
         createChatFailed: '创建对话失败',
-        documentDeleted: '文档已删除'
+        documentDeleted: '文档已删除',
+        logoName: 'Logo & 名称',
+        uploadUserAvatar: '上传用户头像',
+        uploadAIAvatar: '上传 AI 头像',
+        active: '活跃',
+        error: '错误',
+        apacheLicense: 'Apache 2.0 协议'
     }
 };
 
@@ -162,7 +184,7 @@ function app() {
         lang: localStorage.getItem('justchat_lang') || 'en',
         
         // State
-        sidebarCollapsed: false,
+        sidebarCollapsed: window.innerWidth < 768,
         showSettings: false,
         settingsTab: 'models',
         currentChatId: null,

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grok-style UI Preview</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* 
+         * Grok-style Minimalist Design System 
+         * Core Concept: High Contrast, Space, No Noise
+         */
+        :root {
+            --bg-body: #ffffff;
+            --bg-sidebar: #f9f9f9;
+            --bg-modal: #ffffff;
+            --bg-input: #ffffff;
+            --bg-hover: #f0f0f0;
+            --bg-active: #e5e5e5;
+            
+            --text-primary: #000000;
+            --text-secondary: #666666;
+            --text-muted: #999999;
+            
+            --border-light: #e5e5e5;
+            --border-focus: #000000;
+            
+            --accent: #000000;
+            --on-accent: #ffffff;
+            
+            --radius-sm: 6px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            
+            --shadow-modal: 0 20px 40px -10px rgba(0,0,0,0.1);
+            --font-main: 'Outfit', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        /* Dark Mode Simulation (Change this class on body to test) */
+        body.dark-theme {
+            --bg-body: #000000;
+            --bg-sidebar: #0a0a0a;
+            --bg-modal: #111111;
+            --bg-input: #111111;
+            --bg-hover: #1a1a1a;
+            --bg-active: #222222;
+            
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --text-muted: #555555;
+            
+            --border-light: #222222;
+            --border-focus: #ffffff;
+            
+            --accent: #ffffff;
+            --on-accent: #000000;
+            
+            --shadow-modal: 0 20px 40px -10px rgba(0,0,0,0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: var(--font-main);
+            background: var(--bg-body);
+            color: var(--text-primary);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            font-size: 15px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- Sidebar --- */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border-light);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .brand {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .brand-icon {
+            width: 24px; height: 24px;
+            background: var(--text-primary);
+            border-radius: 4px;
+        }
+
+        .new-chat-btn {
+            background: var(--bg-body);
+            border: 1px solid var(--border-light);
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-weight: 500;
+            cursor: pointer;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .new-chat-btn:hover { border-color: var(--border-focus); }
+
+        .chat-history {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            padding: 10px 12px;
+            color: var(--text-secondary);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 2px;
+            font-size: 0.95rem;
+        }
+        .history-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .history-item.active { background: var(--bg-active); color: var(--text-primary); font-weight: 500; }
+
+        .user-menu {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        .avatar {
+            width: 32px; height: 32px;
+            background: var(--bg-active);
+            border-radius: 50%;
+        }
+
+        /* --- Main Chat Area --- */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .messages {
+            flex: 1;
+            padding: 40px 15% 20px;
+            overflow-y: auto;
+        }
+
+        .message {
+            margin-bottom: 30px;
+            line-height: 1.6;
+            display: flex;
+            gap: 20px;
+        }
+
+        .message.user .message-content { color: var(--text-secondary); }
+        
+        .role-icon {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: var(--bg-active);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .message.assistant .role-icon { background: var(--text-primary); color: var(--bg-body); }
+
+        .input-container {
+            padding: 20px 15% 40px;
+            background: linear-gradient(to top, var(--bg-body) 80%, transparent);
+        }
+
+        .input-box {
+            background: var(--bg-input);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            display: flex;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            align-items: flex-end;
+            transition: border-color 0.2s;
+        }
+        .input-box:focus-within { border-color: var(--border-focus); }
+
+        textarea {
+            flex: 1;
+            border: none;
+            background: transparent;
+            resize: none;
+            outline: none;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 1rem;
+            line-height: 1.5;
+            height: 24px;
+        }
+
+        /* --- SETTINGS MODAL (The focus of this redesign) --- */
+        .modal-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(2px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .settings-modal {
+            width: 800px;
+            height: 600px;
+            background: var(--bg-modal);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-modal);
+            display: flex;
+            overflow: hidden;
+            border: 1px solid var(--border-light);
+        }
+
+        /* Settings Sidebar */
+        .settings-nav {
+            width: 200px;
+            background: var(--bg-sidebar);
+            padding: 20px 10px;
+            border-right: 1px solid var(--border-light);
+        }
+        
+        .settings-nav-title {
+            padding: 0 10px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .nav-item {
+            padding: 10px 12px;
+            margin-bottom: 4px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+        
+        .nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .nav-item.active { 
+            background: var(--bg-active); 
+            color: var(--text-primary); 
+        }
+
+        /* Settings Content */
+        .settings-content {
+            flex: 1;
+            padding: 30px 40px;
+            overflow-y: auto;
+        }
+
+        .settings-section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .settings-section-desc {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+        }
+
+        .label-group {
+            flex: 1;
+            padding-right: 20px;
+        }
+        
+        .label-title { display: block; font-weight: 500; margin-bottom: 4px; }
+        .label-desc { display: block; font-size: 0.85rem; color: var(--text-secondary); }
+
+        /* Modern Input */
+        .input-minimal {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--border-light);
+            padding: 8px 0;
+            width: 100%;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        .input-minimal:focus {
+            outline: none;
+            border-color: var(--border-focus);
+        }
+
+        /* Modern Toggle */
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: var(--bg-active);
+            border-radius: 99px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .toggle-switch.checked { background: var(--accent); }
+        
+        .toggle-handle {
+            position: absolute;
+            top: 2px; left: 2px;
+            width: 20px; height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            transition: transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .toggle-switch.checked .toggle-handle { transform: translateX(20px); }
+
+        /* Range Slider */
+        .range-slider {
+            width: 100%;
+            height: 4px;
+            background: var(--bg-active);
+            border-radius: 2px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px; height: 16px;
+            background: var(--text-primary);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .range-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            font-size: 0.95rem;
+        }
+        .btn-primary { background: var(--accent); color: var(--on-accent); }
+        .btn-ghost { background: transparent; color: var(--text-secondary); }
+        .btn-ghost:hover { color: var(--text-primary); background: var(--bg-hover); }
+
+        .modal-actions {
+            margin-top: 40px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-light);
+        }
+
+    </style>
+</head>
+<!-- Toggle class="dark-theme" on body to test dark mode -->
+<body class=""> 
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon"></div>
+            <span>ChatRaw</span>
+        </div>
+        <button class="new-chat-btn">
+            <span>+</span> New Chat
+        </button>
+        <div class="chat-history">
+            <div class="history-item active">UI Design Inspiration</div>
+            <div class="history-item">Python Backend Refactor</div>
+            <div class="history-item">Docker Setup Help</div>
+            <div class="history-item">Kubernetes Deployment</div>
+        </div>
+        <div class="user-menu">
+            <div class="avatar"></div>
+            <span>User Settings</span>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="messages">
+            <div class="message user">
+                <div class="role-icon">U</div>
+                <div class="message-content">
+                    I want to redesign the UI to be more like Grok. Minimalist, black and white, very clean.
+                </div>
+            </div>
+            <div class="message assistant">
+                <div class="role-icon">AI</div>
+                <div class="message-content">
+                    That sounds like a great direction. Grok's design is characterized by:
+                    <br><br>
+                    1. <strong>High Contrast:</strong> Pure blacks and whites.<br>
+                    2. <strong>Monospace Fonts:</strong> For code and technical feel.<br>
+                    3. <strong>Clean Lines:</strong> Minimal borders, relying on negative space.<br>
+                    <br>
+                    I can help you implement this. I've prepared a preview of the new Settings menu structure, which is often the most cluttered part of an app.
+                </div>
+            </div>
+        </div>
+
+        <div class="input-container">
+            <div class="input-box">
+                <textarea placeholder="Type a message..."></textarea>
+                <button class="btn btn-primary" style="padding: 8px 16px;">Send</button>
+            </div>
+        </div>
+
+        <!-- SETTINGS MODAL PREVIEW -->
+        <div class="modal-overlay">
+            <div class="settings-modal">
+                <!-- Left Nav -->
+                <div class="settings-nav">
+                    <div class="settings-nav-title">Settings</div>
+                    <div class="nav-item">General</div>
+                    <div class="nav-item active">Model Config</div>
+                    <div class="nav-item">Chat Parameters</div>
+                    <div class="nav-item">Appearance</div>
+                    <div class="nav-item">Knowledge Base</div>
+                </div>
+
+                <!-- Right Content -->
+                <div class="settings-content">
+                    <div class="settings-section-title">Model Configuration</div>
+                    <p class="settings-section-desc">Manage your AI models and API connections.</p>
+
+                    <div class="form-group">
+                        <div class="label-group">
+                            <label class="label-title">API Endpoint</label>
+                        </div>
+                        <input type="text" class="input-minimal" value="http://localhost:11434/v1">
+                    </div>
+
+                    <div class="form-group">
+                        <div class="label-group">
+                            <label class="label-title">Model ID</label>
+                        </div>
+                        <input type="text" class="input-minimal" value="llama3-70b-8192">
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-row">
+                            <div class="label-group">
+                                <label class="label-title">Enable Vision Capabilities</label>
+                                <span class="label-desc">Allow the model to process image inputs.</span>
+                            </div>
+                            <div class="toggle-switch checked">
+                                <div class="toggle-handle"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="label-group">
+                            <label class="label-title" style="margin-bottom: 12px; display:block;">Context Window (8192)</label>
+                        </div>
+                        <input type="range" class="range-slider" min="1024" max="32000" value="8192">
+                    </div>
+
+                    <div class="modal-actions">
+                        <button class="btn btn-ghost">Cancel</button>
+                        <button class="btn btn-primary">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+</body>
+</html>
