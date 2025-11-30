@@ -8,7 +8,7 @@
 
 *30s deployment, zero registration, any OpenAI-compatible API*
 
-![License](https://img.shields.io/badge/license-CC%20BY--NC--SA%204.0-blue.svg)
+![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
 ![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)
 
@@ -102,12 +102,7 @@ docker compose up -d
 
 ## 📄 License
 
-[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-
-- ✅ Free for personal and non-commercial use
-- ✅ Must give appropriate credit  
-- ❌ Commercial use requires explicit permission
-- ❌ Cannot remove copyright notices
+[Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
 Copyright © 2025 massif-01, RMinte AI Technology Co., Ltd.
 
