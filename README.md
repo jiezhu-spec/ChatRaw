@@ -4,8 +4,6 @@
 
 **Minimalist AI Chat Interface | 极简 AI 聊天界面**
 
-![ChatRaw Demo](assets/demo.png)
-
 *30s deployment, zero registration, any OpenAI-compatible API*
 
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)
@@ -15,6 +13,14 @@
 [English](#-why-chatraw) / [中文](#-为什么选择-chatraw)
 
 </div>
+
+---
+
+## 🎨 Interface | 界面展示
+
+| Light Mode | Dark Mode |
+|:----------:|:---------:|
+| ![Light](assets/interfacelight.png) | ![Dark](assets/interfacedark.png) |
 
 ---
 
@@ -60,6 +66,43 @@ python main.py
 ```
 
 **Visit http://localhost:51111**
+
+## 📸 Feature Screenshots
+
+### 1. Model Settings | 模型设置
+Configure your AI models with any OpenAI-compatible API endpoint.
+
+配置您的 AI 模型，支持任意 OpenAI 兼容 API 端点。
+
+![Model Settings](assets/models.png)
+
+### 2. Chat Settings | 聊天设置
+Adjust temperature, top_p and other model hyperparameters.
+
+调整 temperature、top_p 等模型超参数。
+
+![Chat Settings](assets/chat.png)
+
+### 3. RAG Settings | RAG 设置
+Configure chunk size, overlap, top_k and score threshold for document retrieval.
+
+配置文档检索的分块大小、重叠、Top K 和相似度阈值。
+
+![RAG Settings](assets/RAG.png)
+
+### 4. Interface Settings | 界面设置
+Customize theme, language, logo, subtitle and avatars.
+
+自定义主题、语言、Logo、副标题和头像。
+
+![Interface Settings](assets/interface.png)
+
+### 5. Knowledge Base | 知识库管理
+Upload and manage documents for RAG-powered Q&A.
+
+上传和管理文档，实现基于 RAG 的智能问答。
+
+![Knowledge Base](assets/knowledgebase.png)
 
 ---
 
