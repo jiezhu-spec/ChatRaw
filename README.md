@@ -59,6 +59,50 @@ python main.py
 
 **Visit http://localhost:51111**
 
+## 🔄 Update
+
+**Option 1: Docker (One Command)**
+```bash
+# Pull latest image
+docker pull massif01/chatraw:latest
+
+# Stop and remove old container
+docker stop chatraw && docker rm chatraw
+
+# Start new container (data is preserved in volume)
+docker run -d -p 51111:51111 -v chatraw_data:/app/data --name chatraw massif01/chatraw:latest
+```
+
+**Option 2: Docker Compose**
+```bash
+cd ChatRaw
+
+# Pull latest code
+git pull origin main
+
+# Rebuild and restart
+docker compose down
+docker compose pull
+docker compose up -d
+```
+
+**Option 3: From Source**
+```bash
+cd ChatRaw
+
+# Pull latest code
+git pull origin main
+
+# Update dependencies
+cd backend
+pip install -r requirements.txt
+
+# Restart the server
+python main.py
+```
+
+> 💡 **Note**: Your settings and uploaded documents are preserved during updates. The data is stored in Docker volume (`chatraw_data`) or `data/` folder.
+
 ## 🎨 Interface
 
 | Light Mode | Dark Mode |
@@ -136,6 +180,50 @@ python main.py
 ```
 
 **访问 http://localhost:51111**
+
+## 🔄 更新
+
+**方式一：Docker（一行命令）**
+```bash
+# 拉取最新镜像
+docker pull massif01/chatraw:latest
+
+# 停止并删除旧容器
+docker stop chatraw && docker rm chatraw
+
+# 启动新容器（数据保存在 volume 中不会丢失）
+docker run -d -p 51111:51111 -v chatraw_data:/app/data --name chatraw massif01/chatraw:latest
+```
+
+**方式二：Docker Compose**
+```bash
+cd ChatRaw
+
+# 拉取最新代码
+git pull origin main
+
+# 重建并重启
+docker compose down
+docker compose pull
+docker compose up -d
+```
+
+**方式三：源代码部署**
+```bash
+cd ChatRaw
+
+# 拉取最新代码
+git pull origin main
+
+# 更新依赖
+cd backend
+pip install -r requirements.txt
+
+# 重启服务
+python main.py
+```
+
+> 💡 **提示**：更新过程中您的设置和上传的文档都会保留。数据存储在 Docker volume（`chatraw_data`）或 `data/` 文件夹中。
 
 ## 🎨 界面展示
 
