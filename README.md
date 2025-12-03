@@ -24,7 +24,7 @@ Existing open-source chat frontends are too heavy and complex. Many developers a
 
 ## ✨ Features
 
-- 🪶 **Ultra Lightweight** - ~50MB memory, optimized binary embedding storage
+- 🪶 **Ultra Lightweight** - ~60MB memory, optimized binary embedding storage
 - ⚡ **Instant Startup** - Ready in seconds, connection pooling for fast API calls
 - 🎨 **Custom Branding** - Freely change name and logo
 - 🔌 **Plug & Play** - Any OpenAI-compatible API (Ollama, vLLM, LocalAI, LM Studio, etc.)
@@ -146,7 +146,7 @@ Upload and manage documents for RAG-powered Q&A.
 
 ## ✨ 特性
 
-- 🪶 **极致轻量** - 内存占用 ~50MB，二进制向量存储优化
+- 🪶 **极致轻量** - 内存占用 ~60MB，二进制向量存储优化
 - ⚡ **极速启动** - 秒级启动，连接池加速 API 调用
 - 🎨 **自定义品牌** - 随意更改名称和 LOGO
 - 🔌 **即插即用** - 支持任意 OpenAI 兼容 API（Ollama、vLLM、LocalAI、LM Studio 等）
