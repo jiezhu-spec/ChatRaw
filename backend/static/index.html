@@ -334,10 +334,17 @@
                             </div>
                         </div>
 
-                        <button class="btn-send" @click="sendMessage()" :disabled="!inputMessage.trim() || isGenerating">
+                        <!-- Send Button -->
+                        <button class="btn-send" x-show="!isGenerating" @click="sendMessage()" :disabled="!inputMessage.trim()">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="22" y1="2" x2="11" y2="13"/>
                                 <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                            </svg>
+                        </button>
+                        <!-- Stop Button -->
+                        <button class="btn-stop" x-show="isGenerating" @click="stopGeneration()" :title="t('stopGeneration')">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="6" y="6" width="12" height="12" rx="2"/>
                             </svg>
                         </button>
                     </div>
@@ -372,30 +379,6 @@
                         <div class="section-header">
                             <h2 class="section-title" x-text="t('modelConfig')"></h2>
                             <p class="section-desc" x-text="t('modelConfigDesc')"></p>
-                        </div>
-                        
-                        <!-- System Prompt Collapsible Section -->
-                        <div class="collapsible-section" style="margin-bottom: 24px;">
-                            <div class="collapsible-header" @click="showSystemPrompt = !showSystemPrompt">
-                                <div class="collapsible-title">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                                    </svg>
-                                    <span x-text="t('systemPrompt')"></span>
-                                </div>
-                                <svg class="collapsible-chevron" :class="{ 'expanded': showSystemPrompt }" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <polyline points="6 9 12 15 18 9"/>
-                                </svg>
-                            </div>
-                            <div class="collapsible-content" x-show="showSystemPrompt" x-collapse>
-                                <p class="form-sublabel" x-text="t('systemPromptHint')"></p>
-                                <textarea 
-                                    class="system-prompt-textarea" 
-                                    x-model="settings.chat_settings.system_prompt"
-                                    :placeholder="t('systemPromptPlaceholder')"
-                                    rows="4"
-                                ></textarea>
-                            </div>
                         </div>
                         
                         <template x-for="(model, index) in models" :key="model.id || index">
@@ -518,6 +501,18 @@
                             <label class="form-label">Top P: <span x-text="settings.chat_settings.top_p"></span></label>
                             <input type="range" min="0" max="1" step="0.05" x-model.number="settings.chat_settings.top_p">
                             <span class="form-sublabel" style="margin-top:8px;" x-text="t('topPHint')"></span>
+                        </div>
+
+                        <!-- System Prompt -->
+                        <div class="form-group">
+                            <label class="form-label" x-text="t('systemPrompt')"></label>
+                            <span class="form-sublabel" style="margin-bottom:12px; display:block;" x-text="t('systemPromptHint')"></span>
+                            <textarea 
+                                class="system-prompt-textarea" 
+                                x-model="settings.chat_settings.system_prompt"
+                                :placeholder="t('systemPromptPlaceholder')"
+                                rows="4"
+                            ></textarea>
                         </div>
                     </div>
 

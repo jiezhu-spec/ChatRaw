@@ -93,6 +93,7 @@ const i18n = {
         saveFailed: 'Save failed',
         settingsSaved: 'Settings saved',
         sendFailed: 'Send failed',
+        stopGeneration: 'Stop',
         createChatFailed: 'Failed to create chat',
         documentDeleted: 'Document deleted',
         logoName: 'Logo & Name',
@@ -193,6 +194,7 @@ const i18n = {
         saveFailed: '保存失败',
         settingsSaved: '设置已保存',
         sendFailed: '发送失败',
+        stopGeneration: '停止',
         createChatFailed: '创建对话失败',
         documentDeleted: '文档已删除',
         logoName: 'Logo & 名称',
@@ -233,6 +235,7 @@ function app() {
         useRAG: false,
         useThinking: false,
         isGenerating: false,
+        abortController: null,
         uploadedImage: null,
         uploadedImageBase64: '',
         uploadProgress: { show: false, filename: '', progress: 0, status: '', current: 0, total: 0 },
@@ -385,6 +388,11 @@ function app() {
         
         // Create new chat
         async createNewChat() {
+            // Stop any ongoing generation first
+            if (this.isGenerating) {
+                this.stopGeneration();
+            }
+            
             try {
                 const res = await fetch('/api/chats', { method: 'POST' });
                 if (res.ok) {
@@ -451,6 +459,15 @@ function app() {
             }
         },
         
+        // Stop generation
+        stopGeneration() {
+            if (this.abortController) {
+                this.abortController.abort();
+                this.abortController = null;
+                this.isGenerating = false;
+            }
+        },
+        
         // Send message
         async sendMessage() {
             const message = this.inputMessage.trim();
@@ -458,6 +475,7 @@ function app() {
             
             this.inputMessage = '';
             this.isGenerating = true;
+            this.abortController = new AbortController();
             
             this.messages.push({
                 role: 'user',
@@ -506,10 +524,15 @@ function app() {
                 await this.loadChats();
                 
             } catch (e) {
-                console.error('Failed to send message:', e);
-                this.showToast(this.t('sendFailed') + ': ' + e.message, 'error');
+                if (e.name === 'AbortError') {
+                    // User cancelled, do nothing
+                } else {
+                    console.error('Failed to send message:', e);
+                    this.showToast(this.t('sendFailed') + ': ' + e.message, 'error');
+                }
             } finally {
                 this.isGenerating = false;
+                this.abortController = null;
             }
         },
         
@@ -518,7 +541,8 @@ function app() {
             const res = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
+                body: JSON.stringify(body),
+                signal: this.abortController?.signal
             });
             
             if (!res.ok) {
@@ -526,7 +550,7 @@ function app() {
                 throw new Error(errText || 'Request failed');
             }
             
-            const assistantMsg = { role: 'assistant', content: '', thinking: '', references: [] };
+            const assistantMsg = { role: 'assistant', content: '', thinking: '', references: [], showThinking: false };
             this.messages.push(assistantMsg);
             const msgIndex = this.messages.length - 1;
             
@@ -534,55 +558,70 @@ function app() {
             const decoder = new TextDecoder();
             let buffer = '';
             
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-                
-                buffer += decoder.decode(value, { stream: true });
-                
-                // Process complete lines
-                let newlineIdx;
-                while ((newlineIdx = buffer.indexOf('\n')) !== -1) {
-                    const line = buffer.slice(0, newlineIdx).trim();
-                    buffer = buffer.slice(newlineIdx + 1);
+            try {
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
                     
-                    if (!line) continue;
+                    buffer += decoder.decode(value, { stream: true });
                     
-                    try {
-                        const parsed = JSON.parse(line);
+                    // Process complete lines
+                    let newlineIdx;
+                    while ((newlineIdx = buffer.indexOf('\n')) !== -1) {
+                        const line = buffer.slice(0, newlineIdx).trim();
+                        buffer = buffer.slice(newlineIdx + 1);
                         
-                        if (parsed.chat_id) {
-                            this.currentChatId = parsed.chat_id;
-                        }
+                        if (!line) continue;
                         
-                        // Handle thinking/reasoning content
-                        if (parsed.thinking) {
-                            assistantMsg.thinking += parsed.thinking;
-                            // Force Alpine.js reactivity update
-                            this.messages[msgIndex] = { ...assistantMsg };
-                            this.$nextTick(() => this.scrollToBottom());
+                        try {
+                            const parsed = JSON.parse(line);
+                            
+                            if (parsed.chat_id) {
+                                this.currentChatId = parsed.chat_id;
+                            }
+                            
+                            // Handle thinking/reasoning content
+                            if (parsed.thinking) {
+                                // Preserve showThinking state when updating
+                                const currentShowThinking = this.messages[msgIndex]?.showThinking || false;
+                                assistantMsg.thinking += parsed.thinking;
+                                assistantMsg.showThinking = currentShowThinking;
+                                this.messages[msgIndex] = { ...assistantMsg };
+                                this.$nextTick(() => this.scrollToBottom());
+                            }
+                            
+                            if (parsed.content) {
+                                // Preserve showThinking state when updating
+                                const currentShowThinking = this.messages[msgIndex]?.showThinking || false;
+                                assistantMsg.content += parsed.content;
+                                assistantMsg.showThinking = currentShowThinking;
+                                this.messages[msgIndex] = { ...assistantMsg };
+                                this.$nextTick(() => this.scrollToBottom());
+                            }
+                            
+                            if (parsed.references) {
+                                const currentShowThinking = this.messages[msgIndex]?.showThinking || false;
+                                assistantMsg.references = parsed.references;
+                                assistantMsg.showThinking = currentShowThinking;
+                                this.messages[msgIndex] = { ...assistantMsg };
+                                this.$nextTick(() => this.scrollToBottom());
+                            }
+                            
+                            if (parsed.error) {
+                                assistantMsg.content = 'Error: ' + parsed.error;
+                                this.messages[msgIndex] = { ...assistantMsg };
+                            }
+                        } catch (e) {
+                            // ignore parse errors
                         }
-                        
-                        if (parsed.content) {
-                            assistantMsg.content += parsed.content;
-                            // Force Alpine.js reactivity update
-                            this.messages[msgIndex] = { ...assistantMsg };
-                            this.$nextTick(() => this.scrollToBottom());
-                        }
-                        
-                        if (parsed.references) {
-                            assistantMsg.references = parsed.references;
-                            this.messages[msgIndex] = { ...assistantMsg };
-                            this.$nextTick(() => this.scrollToBottom());
-                        }
-                        
-                        if (parsed.error) {
-                            assistantMsg.content = 'Error: ' + parsed.error;
-                            this.messages[msgIndex] = { ...assistantMsg };
-                        }
-                    } catch (e) {
-                        // ignore parse errors
                     }
+                }
+            } catch (e) {
+                if (e.name === 'AbortError') {
+                    // User stopped generation, keep partial content
+                    reader.cancel();
+                } else {
+                    throw e;
                 }
             }
         },
