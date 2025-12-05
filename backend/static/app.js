@@ -722,71 +722,91 @@ function app() {
             event.target.value = '';
         },
         
-        // Compress image using Canvas API, target ~2MB, convert to WebP
+        // Check if browser supports WebP encoding
+        supportsWebP() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1;
+            canvas.height = 1;
+            return canvas.toDataURL('image/webp').startsWith('data:image/webp');
+        },
+        
+        // Compress image using Canvas API, target ~2MB
         async compressImage(file, targetSizeMB = 2) {
             const targetSize = targetSizeMB * 1024 * 1024;
-            
-            // If already small enough and is a web-friendly format, just return
-            if (file.size <= targetSize && file.type === 'image/webp') {
-                return file;
-            }
             
             return new Promise((resolve, reject) => {
                 const img = new Image();
                 const url = URL.createObjectURL(file);
                 
-                img.onload = () => {
+                img.onload = async () => {
                     URL.revokeObjectURL(url);
                     
-                    let { width, height } = img;
-                    const maxDimension = 4096; // Max dimension to keep quality reasonable
+                    // Detect format support
+                    const useWebP = this.supportsWebP();
+                    const mimeType = useWebP ? 'image/webp' : 'image/jpeg';
+                    const ext = useWebP ? '.webp' : '.jpg';
                     
-                    // Scale down if too large
-                    if (width > maxDimension || height > maxDimension) {
-                        const ratio = Math.min(maxDimension / width, maxDimension / height);
+                    let { width, height } = img;
+                    const originalWidth = width;
+                    const originalHeight = height;
+                    
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Helper to create blob
+                    const createBlob = (w, h, quality) => {
+                        return new Promise((res) => {
+                            canvas.width = w;
+                            canvas.height = h;
+                            ctx.fillStyle = '#FFFFFF';
+                            ctx.fillRect(0, 0, w, h);
+                            ctx.drawImage(img, 0, 0, w, h);
+                            canvas.toBlob((blob) => res(blob), mimeType, quality);
+                        });
+                    };
+                    
+                    // Try compression with different settings until under target size
+                    const qualityLevels = [0.85, 0.75, 0.65, 0.55, 0.45, 0.35];
+                    const scaleLevels = [1.0, 0.8, 0.6, 0.5, 0.4, 0.3];
+                    
+                    let bestBlob = null;
+                    
+                    // First, limit max dimension to 4096
+                    if (width > 4096 || height > 4096) {
+                        const ratio = Math.min(4096 / width, 4096 / height);
                         width = Math.round(width * ratio);
                         height = Math.round(height * ratio);
                     }
                     
-                    const canvas = document.createElement('canvas');
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-                    
-                    // Try different quality levels to hit target size
-                    const tryCompress = (quality) => {
-                        canvas.toBlob((blob) => {
-                            if (!blob) {
-                                reject(new Error('Compression failed'));
-                                return;
+                    // Try different quality and scale combinations
+                    for (const scale of scaleLevels) {
+                        const w = Math.round(width * scale);
+                        const h = Math.round(height * scale);
+                        
+                        for (const quality of qualityLevels) {
+                            const blob = await createBlob(w, h, quality);
+                            if (blob && blob.size <= targetSize) {
+                                bestBlob = blob;
+                                break;
                             }
-                            
-                            // If size is acceptable or quality is already low, return
-                            if (blob.size <= targetSize || quality <= 0.5) {
-                                // If still too big at low quality, reduce dimensions
-                                if (blob.size > targetSize && width > 1024) {
-                                    const scale = 0.7;
-                                    canvas.width = Math.round(width * scale);
-                                    canvas.height = Math.round(height * scale);
-                                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                                    canvas.toBlob((finalBlob) => {
-                                        const newName = file.name.replace(/\.[^.]+$/, '.webp');
-                                        resolve(new File([finalBlob], newName, { type: 'image/webp' }));
-                                    }, 'image/webp', 0.6);
-                                } else {
-                                    const newName = file.name.replace(/\.[^.]+$/, '.webp');
-                                    resolve(new File([finalBlob], newName, { type: 'image/webp' }));
-                                }
-                            } else {
-                                // Try lower quality
-                                tryCompress(quality - 0.1);
+                            // Keep the smallest one we've seen
+                            if (!bestBlob || (blob && blob.size < bestBlob.size)) {
+                                bestBlob = blob;
                             }
-                        }, 'image/webp', quality);
-                    };
+                        }
+                        
+                        if (bestBlob && bestBlob.size <= targetSize) {
+                            break;
+                        }
+                    }
                     
-                    // Start with high quality
-                    tryCompress(0.85);
+                    if (!bestBlob) {
+                        reject(new Error('Compression failed'));
+                        return;
+                    }
+                    
+                    const newName = file.name.replace(/\.[^.]+$/, ext);
+                    resolve(new File([bestBlob], newName, { type: mimeType }));
                 };
                 
                 img.onerror = () => {

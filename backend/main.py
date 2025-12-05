@@ -1057,7 +1057,7 @@ RATE_LIMIT_WINDOW = int(os.environ.get("RATE_LIMIT_WINDOW", "60"))  # window in 
 
 # File upload limits (in bytes)
 MAX_UPLOAD_SIZE = int(os.environ.get("MAX_UPLOAD_SIZE", str(50 * 1024 * 1024)))  # 50MB default
-MAX_IMAGE_SIZE = int(os.environ.get("MAX_IMAGE_SIZE", str(10 * 1024 * 1024)))  # 10MB default
+MAX_IMAGE_SIZE = int(os.environ.get("MAX_IMAGE_SIZE", str(20 * 1024 * 1024)))  # 20MB default
 
 # ============ Rate Limiting Middleware ============
 
