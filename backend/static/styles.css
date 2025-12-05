@@ -643,6 +643,58 @@ body {
     background: var(--bg-primary);
 }
 
+/* Thinking Mode Toggle (same style as RAG toggle) */
+.thinking-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: var(--transition);
+    z-index: 10;
+    position: relative;
+}
+
+.thinking-toggle:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+}
+
+.thinking-toggle.active {
+    color: var(--text-primary);
+}
+
+.thinking-slider {
+    width: 28px;
+    height: 14px;
+    background: var(--bg-tertiary);
+    border-radius: 7px;
+    position: relative;
+    transition: background 0.2s ease;
+}
+
+.thinking-toggle.active .thinking-slider {
+    background: var(--text-primary);
+}
+
+.thinking-slider-handle {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 10px;
+    height: 10px;
+    background: var(--text-muted);
+    border-radius: 50%;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.thinking-toggle.active .thinking-slider-handle {
+    left: 16px;
+    background: var(--bg-primary);
+}
+
 .input-wrapper {
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
@@ -1147,6 +1199,84 @@ input[type=range]::-webkit-slider-thumb {
 
 input[type=range]::-webkit-slider-thumb:hover {
     transform: scale(1.1);
+}
+
+/* Collapsible Section */
+.collapsible-section {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.collapsible-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: var(--transition);
+    user-select: none;
+}
+
+.collapsible-header:hover {
+    background: var(--bg-hover);
+}
+
+.collapsible-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+}
+
+.collapsible-title svg {
+    color: var(--text-secondary);
+}
+
+.collapsible-chevron {
+    color: var(--text-secondary);
+    transition: transform 0.2s ease;
+}
+
+.collapsible-chevron.expanded {
+    transform: rotate(180deg);
+}
+
+.collapsible-content {
+    padding: 0 20px 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.collapsible-content .form-sublabel {
+    margin-top: 16px;
+    margin-bottom: 12px;
+}
+
+.system-prompt-textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 12px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    resize: vertical;
+    transition: border-color 0.2s;
+}
+
+.system-prompt-textarea:focus {
+    outline: none;
+    border-color: var(--border-focus);
+}
+
+.system-prompt-textarea::placeholder {
+    color: var(--text-muted);
 }
 
 /* Model Cards */
@@ -1660,6 +1790,65 @@ input[type=range]::-webkit-slider-thumb:hover {
         padding: 12px 8px;
         gap: 8px;
     }
+}
+
+/* Thinking Block */
+.thinking-block {
+    margin-bottom: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--bg-secondary);
+    overflow: hidden;
+}
+
+.thinking-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    padding: 10px 14px;
+    background: var(--bg-hover);
+    transition: var(--transition);
+    user-select: none;
+}
+
+.thinking-header:hover {
+    background: var(--border-color);
+}
+
+.thinking-header svg {
+    flex-shrink: 0;
+    color: var(--text-muted);
+}
+
+.thinking-header .chevron {
+    margin-left: auto;
+    transition: transform 0.2s ease;
+}
+
+.thinking-header .chevron.expanded {
+    transform: rotate(180deg);
+}
+
+.thinking-content {
+    padding: 14px;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.thinking-content p {
+    margin-bottom: 0.8em;
+}
+
+.thinking-content p:last-child {
+    margin-bottom: 0;
 }
 
 /* RAG References Bubble */

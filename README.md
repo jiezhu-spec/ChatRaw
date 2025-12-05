@@ -31,6 +31,8 @@ Existing open-source chat frontends are too heavy and complex. Many developers a
 - 📄 **Drag & Drop RAG** - Upload documents (PDF, DOCX, TXT, MD) for instant Q&A
 - 🔗 **URL Parser** - Parse web pages and use content as AI context
 - 🖼️ **Vision AI** - Multimodal image understanding
+- 🧠 **Thinking Mode** - Support reasoning models (DeepSeek-R1, Qwen, o1, etc.) with collapsible thinking process display
+- 💬 **System Prompt** - Customizable system prompt for AI behavior control
 - 🌍 **i18n** - English & Chinese with one-click switch
 - 🔒 **Zero Registration** - Settings auto-saved locally
 - 🐳 **One-Click Deploy** - Docker in 30 seconds, multi-arch (AMD64/ARM64)
@@ -153,6 +155,8 @@ Upload and manage documents for RAG-powered Q&A.
 - 📄 **拖拽 RAG** - 支持 PDF、DOCX、TXT、MD 文档上传问答
 - 🔗 **网页解析** - 解析网页内容作为 AI 上下文辅助回答
 - 🖼️ **视觉理解** - 支持多模态模型图片理解
+- 🧠 **思考模式** - 支持推理模型（DeepSeek-R1、Qwen、o1等），可折叠显示思考过程
+- 💬 **系统提示词** - 可配置系统提示词，控制 AI 行为
 - 🌍 **多语言** - 中英文一键切换
 - 🔒 **零注册** - 无需登录，设置自动保存到本地
 - 🐳 **一键部署** - Docker 30秒部署，多架构支持 (AMD64/ARM64)
@@ -272,18 +276,23 @@ python main.py
 
 ---
 
-## 🔧 v1.4.0 Performance Optimizations | 性能优化
+## 🔧 v1.5.0 New Features | 新功能
 
-**Backend:**
+**Thinking Mode | 思考模式:**
+- Support for reasoning models (DeepSeek-R1, Qwen, OpenAI o1, etc.) | 支持推理模型
+- Collapsible thinking process display | 可折叠显示思考过程
+- Compatible with `reasoning_content`, `reasoning`, `thinking` fields | 兼容多种模型字段
+
+**System Prompt | 系统提示词:**
+- Customizable system prompt in Model Settings | 可在模型配置中设置系统提示词
+- Collapsible configuration panel | 可折叠的配置面板
+- Automatically applied to all conversations | 自动应用于所有对话
+
+**Performance | 性能优化:**
 - HTTP connection pooling (30-50% faster API calls) | HTTP 连接池复用 (API 调用快 30-50%)
 - SQLite indexes for faster queries | SQLite 索引加速查询
 - Binary embedding storage (30% smaller DB) | 二进制向量存储 (数据库体积减少 30%)
 - Paginated RAG retrieval (50% less memory) | RAG 分页加载 (内存减少 50%)
-
-**Frontend:**
-- System fonts (no external requests) | 系统字体 (无外部请求)
-- Optimized highlight.js (~50KB vs ~500KB) | 精简代码高亮 (~50KB vs ~500KB)
-- PDF & DOCX document parsing support | 支持 PDF、DOCX 文档解析
 
 ---
 

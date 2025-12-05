@@ -17,6 +17,9 @@ const i18n = {
         visionAI: 'Vision AI',
         knowledgeBase: 'Knowledge Base',
         kbEnabled: 'KB Enabled',
+        thinkingMode: 'Thinking Mode',
+        thinkingEnabled: 'Thinking Enabled',
+        thinkingProcess: 'Thinking Process',
         uploadImage: 'Upload Image',
         uploadDocument: 'Upload Document',
         image: 'Image',
@@ -60,6 +63,9 @@ const i18n = {
         topPHint: 'Nucleus sampling parameter, controls output diversity',
         streamOutput: 'Stream Output',
         streamHint: 'Display AI response in real-time',
+        systemPrompt: 'System Prompt',
+        systemPromptHint: 'Set instructions for the AI assistant',
+        systemPromptPlaceholder: 'You are a helpful assistant...',
         chunkSize: 'Chunk Size',
         chunkSizeHint: 'Number of characters per document chunk',
         chunkOverlap: 'Chunk Overlap',
@@ -111,6 +117,9 @@ const i18n = {
         visionAI: '视觉理解',
         knowledgeBase: '知识库',
         kbEnabled: '知识库已开启',
+        thinkingMode: '思考模式',
+        thinkingEnabled: '思考模式已开启',
+        thinkingProcess: '思考过程',
         uploadImage: '上传图片',
         uploadDocument: '上传文档',
         image: '图片',
@@ -154,6 +163,9 @@ const i18n = {
         topPHint: '核采样参数，控制输出的多样性',
         streamOutput: '流式输出',
         streamHint: '实时显示AI的回复内容',
+        systemPrompt: '系统提示词',
+        systemPromptHint: '设置AI助手的行为指令',
+        systemPromptPlaceholder: '你是一个有帮助的助手...',
         chunkSize: '文档块大小',
         chunkSizeHint: '文档分块的字符数',
         chunkOverlap: '块重叠',
@@ -215,9 +227,11 @@ function app() {
         sidebarCollapsed: window.innerWidth < 768,
         showSettings: false,
         settingsTab: 'models',
+        showSystemPrompt: false,
         currentChatId: null,
         inputMessage: '',
         useRAG: false,
+        useThinking: false,
         isGenerating: false,
         uploadedImage: null,
         uploadedImageBase64: '',
@@ -243,7 +257,8 @@ function app() {
             chat_settings: {
                 temperature: 0.7,
                 top_p: 0.9,
-                stream: true
+                stream: true,
+                system_prompt: ''
             },
             rag_settings: {
                 chunk_size: 500,
@@ -472,6 +487,7 @@ function app() {
                     chat_id: this.currentChatId,
                     message: message,
                     use_rag: this.useRAG,
+                    use_thinking: this.useThinking,
                     image_base64: this.uploadedImageBase64,
                     web_content: combinedContent,
                     web_url: contentSource
@@ -510,7 +526,7 @@ function app() {
                 throw new Error(errText || 'Request failed');
             }
             
-            const assistantMsg = { role: 'assistant', content: '', references: [] };
+            const assistantMsg = { role: 'assistant', content: '', thinking: '', references: [] };
             this.messages.push(assistantMsg);
             const msgIndex = this.messages.length - 1;
             
@@ -537,6 +553,14 @@ function app() {
                         
                         if (parsed.chat_id) {
                             this.currentChatId = parsed.chat_id;
+                        }
+                        
+                        // Handle thinking/reasoning content
+                        if (parsed.thinking) {
+                            assistantMsg.thinking += parsed.thinking;
+                            // Force Alpine.js reactivity update
+                            this.messages[msgIndex] = { ...assistantMsg };
+                            this.$nextTick(() => this.scrollToBottom());
                         }
                         
                         if (parsed.content) {
@@ -584,6 +608,7 @@ function app() {
             this.messages.push({
                 role: 'assistant',
                 content: data.content,
+                thinking: data.thinking || '',
                 references: data.references || []
             });
             this.$nextTick(() => this.scrollToBottom());

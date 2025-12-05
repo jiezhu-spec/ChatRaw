@@ -162,6 +162,23 @@
                             <div class="typing-indicator" x-show="msg.role === 'assistant' && !msg.content && isGenerating">
                                 <span></span><span></span><span></span>
                             </div>
+                            <!-- Thinking/Reasoning Block -->
+                            <div class="thinking-block" x-show="msg.thinking && msg.thinking.length > 0">
+                                <div class="thinking-header" @click="msg.showThinking = !msg.showThinking">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/>
+                                        <path d="M9 21h6"/>
+                                    </svg>
+                                    <span x-text="t('thinkingProcess')"></span>
+                                    <svg class="chevron" :class="{ 'expanded': msg.showThinking }" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="6 9 12 15 18 9"/>
+                                    </svg>
+                                </div>
+                                <div class="thinking-content" x-show="msg.showThinking" x-collapse>
+                                    <div x-html="renderMarkdown(msg.thinking)"></div>
+                                </div>
+                            </div>
+                            
                             <!-- Show actual content -->
                             <div x-show="msg.content" x-html="renderMarkdown(msg.content)"></div>
                             
@@ -247,6 +264,18 @@
                         ></textarea>
                         
                         <div class="input-toolbar">
+                            <!-- Thinking Mode Toggle -->
+                            <div class="thinking-toggle" :class="{ 'active': useThinking }" @click="useThinking = !useThinking" :title="t('thinkingMode')">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"/>
+                                    <path d="M9 21h6"/>
+                                    <path d="M10 24h4"/>
+                                </svg>
+                                <div class="thinking-slider">
+                                    <div class="thinking-slider-handle"></div>
+                                </div>
+                            </div>
+                            <!-- RAG Toggle -->
                             <div class="rag-toggle" :class="{ 'active': useRAG }" @click="useRAG = !useRAG" :title="t('knowledgeBase')">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
@@ -343,6 +372,30 @@
                         <div class="section-header">
                             <h2 class="section-title" x-text="t('modelConfig')"></h2>
                             <p class="section-desc" x-text="t('modelConfigDesc')"></p>
+                        </div>
+                        
+                        <!-- System Prompt Collapsible Section -->
+                        <div class="collapsible-section" style="margin-bottom: 24px;">
+                            <div class="collapsible-header" @click="showSystemPrompt = !showSystemPrompt">
+                                <div class="collapsible-title">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                    </svg>
+                                    <span x-text="t('systemPrompt')"></span>
+                                </div>
+                                <svg class="collapsible-chevron" :class="{ 'expanded': showSystemPrompt }" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"/>
+                                </svg>
+                            </div>
+                            <div class="collapsible-content" x-show="showSystemPrompt" x-collapse>
+                                <p class="form-sublabel" x-text="t('systemPromptHint')"></p>
+                                <textarea 
+                                    class="system-prompt-textarea" 
+                                    x-model="settings.chat_settings.system_prompt"
+                                    :placeholder="t('systemPromptPlaceholder')"
+                                    rows="4"
+                                ></textarea>
+                            </div>
                         </div>
                         
                         <template x-for="(model, index) in models" :key="model.id || index">

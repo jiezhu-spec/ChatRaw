@@ -89,6 +89,7 @@ class ChatSettings(BaseModel):
     temperature: float = 0.7
     top_p: float = 0.9
     stream: bool = True
+    system_prompt: str = ""
 
 class RAGSettings(BaseModel):
     chunk_size: int = 500
@@ -113,6 +114,7 @@ class ChatRequest(BaseModel):
     chat_id: Optional[str] = ""
     message: str = ""
     use_rag: Optional[bool] = False
+    use_thinking: Optional[bool] = False  # Enable thinking/reasoning mode
     image_base64: Optional[str] = ""
     web_content: Optional[str] = ""  # Parsed web page content
     web_url: Optional[str] = ""  # Source URL for reference
@@ -499,8 +501,8 @@ class LLMService:
     def __init__(self, db: Database):
         self.db = db
     
-    async def chat_stream(self, chat_id: str, message: str, use_rag: bool = False, image_base64: str = "", web_content: str = "", web_url: str = "") -> AsyncGenerator[str, None]:
-        """Stream chat responses"""
+    async def chat_stream(self, chat_id: str, message: str, use_rag: bool = False, use_thinking: bool = False, image_base64: str = "", web_content: str = "", web_url: str = "") -> AsyncGenerator[str, None]:
+        """Stream chat responses with optional thinking/reasoning support"""
         config = self.db.get_model_by_type("chat")
         if not config or not config.api_url or not config.model_id:
             yield json.dumps({"error": "Chat model not configured"})
@@ -510,7 +512,14 @@ class LLMService:
         
         # Build messages
         history = self.db.get_messages(chat_id)
-        messages = [{"role": m.role, "content": m.content} for m in history]
+        messages = []
+        
+        # Add system prompt if configured
+        if settings.chat_settings.system_prompt:
+            messages.append({"role": "system", "content": settings.chat_settings.system_prompt})
+        
+        # Add conversation history
+        messages.extend([{"role": m.role, "content": m.content} for m in history])
         
         # RAG context and references
         rag_context = ""
@@ -558,6 +567,7 @@ class LLMService:
         }
         
         full_response = ""
+        full_thinking = ""
         
         try:
             session = await get_http_session()
@@ -586,6 +596,16 @@ class LLMService:
                                 chunk_data = json.loads(data)
                                 if chunk_data.get("choices") and len(chunk_data["choices"]) > 0:
                                     delta = chunk_data["choices"][0].get("delta", {})
+                                    
+                                    # Handle reasoning/thinking content (DeepSeek, Qwen, etc.)
+                                    # Only process if thinking mode is enabled
+                                    if use_thinking:
+                                        reasoning = delta.get("reasoning_content", "") or delta.get("reasoning", "") or delta.get("thinking", "")
+                                        if reasoning:
+                                            full_thinking += reasoning
+                                            yield json.dumps({"thinking": reasoning})
+                                    
+                                    # Handle regular content
                                     content = delta.get("content", "")
                                     if content:
                                         full_response += content
@@ -593,9 +613,12 @@ class LLMService:
                             except json.JSONDecodeError:
                                 continue
             
-            # Save response
+            # Save response (include thinking in saved message if present)
             if full_response:
-                self.db.add_message(chat_id, "assistant", full_response)
+                save_content = full_response
+                if full_thinking:
+                    save_content = f"<thinking>\n{full_thinking}\n</thinking>\n\n{full_response}"
+                self.db.add_message(chat_id, "assistant", save_content)
                 
                 # Update title
                 messages_count = len(self.db.get_messages(chat_id))
@@ -614,8 +637,8 @@ class LLMService:
         except Exception as e:
             yield json.dumps({"error": str(e)})
     
-    async def chat_non_stream(self, chat_id: str, message: str, use_rag: bool = False, image_base64: str = "", web_content: str = "", web_url: str = "") -> dict:
-        """Non-streaming chat, returns dict with content and references"""
+    async def chat_non_stream(self, chat_id: str, message: str, use_rag: bool = False, use_thinking: bool = False, image_base64: str = "", web_content: str = "", web_url: str = "") -> dict:
+        """Non-streaming chat, returns dict with content, thinking, and references"""
         config = self.db.get_model_by_type("chat")
         if not config or not config.api_url or not config.model_id:
             raise HTTPException(status_code=500, detail="Chat model not configured")
@@ -623,7 +646,14 @@ class LLMService:
         settings = self.db.get_settings()
         
         history = self.db.get_messages(chat_id)
-        messages = [{"role": m.role, "content": m.content} for m in history]
+        messages = []
+        
+        # Add system prompt if configured
+        if settings.chat_settings.system_prompt:
+            messages.append({"role": "system", "content": settings.chat_settings.system_prompt})
+        
+        # Add conversation history
+        messages.extend([{"role": m.role, "content": m.content} for m in history])
         
         # RAG context and references
         rag_context = ""
@@ -674,16 +704,26 @@ class LLMService:
                 raise HTTPException(status_code=500, detail=f"API error: {error_text}")
             
             data = await resp.json()
-            content = data["choices"][0]["message"]["content"]
+            msg_data = data["choices"][0]["message"]
+            content = msg_data.get("content", "")
             
-            self.db.add_message(chat_id, "assistant", content)
+            # Extract thinking/reasoning content if thinking mode is enabled
+            thinking = ""
+            if use_thinking:
+                thinking = msg_data.get("reasoning_content", "") or msg_data.get("reasoning", "") or msg_data.get("thinking", "")
+            
+            # Save response (include thinking in saved message if present)
+            save_content = content
+            if thinking:
+                save_content = f"<thinking>\n{thinking}\n</thinking>\n\n{content}"
+            self.db.add_message(chat_id, "assistant", save_content)
             
             messages_count = len(self.db.get_messages(chat_id))
             if messages_count <= 2:
                 title = message[:30] + "..." if len(message) > 30 else message
                 self.db.update_chat_title(chat_id, title)
             
-            return {"content": content, "references": rag_references}
+            return {"content": content, "thinking": thinking, "references": rag_references}
     
     async def get_embedding(self, text: str) -> List[float]:
         """Get embedding for text"""
@@ -1045,6 +1085,7 @@ async def chat(request: Request):
     chat_id = body.get("chat_id", "") or ""
     message = body.get("message", "") or ""
     use_rag = body.get("use_rag", False) or False
+    use_thinking = body.get("use_thinking", False) or False
     image_base64 = body.get("image_base64", "") or ""
     web_content = body.get("web_content", "") or ""
     web_url = body.get("web_url", "") or ""
@@ -1069,7 +1110,7 @@ async def chat(request: Request):
             yield json.dumps({"chat_id": chat_id}) + "\n"
             
             # Stream content
-            async for chunk in llm_service.chat_stream(chat_id, message, use_rag, image_base64, web_content, web_url):
+            async for chunk in llm_service.chat_stream(chat_id, message, use_rag, use_thinking, image_base64, web_content, web_url):
                 yield chunk + "\n"
         
         return StreamingResponse(
@@ -1082,8 +1123,8 @@ async def chat(request: Request):
         )
     else:
         # Non-streaming response
-        result = await llm_service.chat_non_stream(chat_id, message, use_rag, image_base64, web_content, web_url)
-        return {"chat_id": chat_id, "content": result["content"], "references": result["references"]}
+        result = await llm_service.chat_non_stream(chat_id, message, use_rag, use_thinking, image_base64, web_content, web_url)
+        return {"chat_id": chat_id, "content": result["content"], "thinking": result.get("thinking", ""), "references": result["references"]}
 
 @app.get("/api/documents")
 async def get_documents():
