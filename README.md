@@ -145,7 +145,7 @@ The input toolbar provides quick access to powerful features:
 
 | Button | Function |
 |:------:|----------|
-| 🧠 | **Thinking Mode** - Enable reasoning display for models like DeepSeek-R1, Qwen, o1 |
+| 💡 | **Thinking Mode** - Enable reasoning display for models like DeepSeek-R1, Qwen, o1 |
 | 📚 | **Knowledge Base** - Toggle RAG mode to search uploaded documents |
 | 🖼️ | **Image Upload** - Attach images for vision AI analysis |
 | 📄 | **Document Upload** - Attach documents as chat context |
@@ -283,7 +283,7 @@ python main.py
 
 | 按钮 | 功能 |
 |:----:|------|
-| 🧠 | **思考模式** - 开启推理模型（DeepSeek-R1、Qwen、o1等）的思考过程显示 |
+| 💡 | **思考模式** - 开启推理模型（DeepSeek-R1、Qwen、o1等）的思考过程显示 |
 | 📚 | **知识库** - 切换 RAG 模式，搜索已上传的文档 |
 | 🖼️ | **图片上传** - 附加图片进行视觉 AI 分析 |
 | 📄 | **文档上传** - 附加文档作为聊天上下文 |
