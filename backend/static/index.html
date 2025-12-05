@@ -256,7 +256,7 @@
                     <div class="input-wrapper">
                         <textarea 
                             x-model="inputMessage" 
-                            @keydown.enter.prevent="if (!$event.shiftKey) sendMessage()"
+                            @keydown.enter="if (!$event.shiftKey) { $event.preventDefault(); sendMessage() }"
                             :placeholder="t('inputPlaceholder')"
                             rows="1"
                             x-ref="inputBox"
