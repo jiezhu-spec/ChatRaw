@@ -138,6 +138,20 @@ Upload and manage documents for RAG-powered Q&A.
 
 ![Knowledge Base](assets/knowledgebase.png)
 
+### 6. Dialog Box
+The input toolbar provides quick access to powerful features:
+
+![Dialog Box](assets/dialogbox.png)
+
+| Button | Function |
+|:------:|----------|
+| 🧠 | **Thinking Mode** - Enable reasoning display for models like DeepSeek-R1, Qwen, o1 |
+| 📚 | **Knowledge Base** - Toggle RAG mode to search uploaded documents |
+| 🖼️ | **Image Upload** - Attach images for vision AI analysis |
+| 📄 | **Document Upload** - Attach documents as chat context |
+| 🔗 | **URL Parser** - Parse web pages and use content as context |
+| ⬛/➤ | **Stop/Send** - Stop generation or send message |
+
 ---
 
 ## 💡 为什么选择 ChatRaw？
@@ -261,6 +275,20 @@ python main.py
 上传和管理文档，实现基于 RAG 的智能问答。
 
 ![知识库管理](assets/knowledgebase.png)
+
+### 6. 对话框功能
+输入工具栏提供快捷访问各种强大功能：
+
+![对话框](assets/dialogbox.png)
+
+| 按钮 | 功能 |
+|:----:|------|
+| 🧠 | **思考模式** - 开启推理模型（DeepSeek-R1、Qwen、o1等）的思考过程显示 |
+| 📚 | **知识库** - 切换 RAG 模式，搜索已上传的文档 |
+| 🖼️ | **图片上传** - 附加图片进行视觉 AI 分析 |
+| 📄 | **文档上传** - 附加文档作为聊天上下文 |
+| 🔗 | **网页解析** - 解析网页内容作为上下文 |
+| ⬛/➤ | **停止/发送** - 停止生成或发送消息 |
 
 ---
 
