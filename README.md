@@ -1,6 +1,6 @@
 <div align="center">
 
-# ChatRaw 🚀
+# ChatRaw
 
 **Lightweight AI Chat Interface with Plugin System | 轻量 AI 聊天界面与插件系统**
 
@@ -10,23 +10,38 @@
 ![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)
 
-[English](#-part-1-core-features) / [中文](#-第一部分-核心功能)
+[English](#english) | [中文](#中文)
 
 </div>
 
 ---
 
-## 📦 Part 1: Core Features | 第一部分：核心功能
+# English
 
-*Fast, Lightweight, Convenient | 快速、轻量、便捷*
+## 📸 Interface Preview
 
-### Why ChatRaw? | 为什么选择 ChatRaw？
+### Main Chat Interface
+![Main Interface](assets/main-interface.png)
 
-ChatRaw is designed for developers and AI hardware vendors who need a **minimal, ready-to-use chat interface** that can be deployed in seconds. No complex setup, no heavy dependencies—just a clean, fast AI chat experience.
+### Model Configuration
+![Model Configuration](assets/model-configuration.png)
 
-ChatRaw 专为开发者和 AI 硬件厂商设计，提供**极简、开箱即用的聊天界面**，秒级部署。无需复杂配置，无重型依赖——只需一个干净、快速的 AI 聊天体验。
+### Plugin Market
+![Plugin Market](assets/plugin-market.png)
 
-### Core Highlights | 核心亮点
+---
+
+## 🌟 Why ChatRaw?
+
+Many developers, AI hardware vendors, and users just need a simple, lightweight application that can quickly demonstrate their model capabilities. That's why we created ChatRaw - a minimal, ready-to-use chat interface that deploys in seconds. No complex configuration, no heavy dependencies—just a clean, fast AI chat experience.
+
+---
+
+## 📦 Part 1: Core Features
+
+*Fast, Lightweight, Convenient*
+
+### Core Highlights
 
 - 🪶 **Ultra Lightweight** - ~60MB memory footprint, optimized binary embedding storage
 - ⚡ **Instant Startup** - Ready in seconds with connection pooling for fast API calls
@@ -40,6 +55,232 @@ ChatRaw 专为开发者和 AI 硬件厂商设计，提供**极简、开箱即用
 - 🔒 **Zero Registration** - Settings auto-saved locally
 - 🐳 **One-Click Deploy** - Docker deployment in 30 seconds
 
+### Key Features
+
+**Multi-Model Configuration**
+- Supports unlimited chat, embedding, and reranking models
+- Automatic API key rotation to bypass rate limits
+- Built-in endpoint validation and testing
+
+**Thinking Mode**
+- Deep reasoning for supported models
+- Collapsible thought process display
+
+**Custom Branding**
+- Customize interface: name, Logo, subtitle, avatar, and theme colors
+
+**Document & Image Support**
+- Upload documents (PDF, DOCX, TXT, MD) as chat context. AI can read and reference document content
+- Attach images for multimodal understanding. Automatically compressed to WebP format (~2MB)
+
+---
+
+## 🔌 Part 2: Extension Plugins
+
+*Flexible, Free, Community-Driven*
+
+ChatRaw features a complete **plugin system** to extend functionality:
+
+### Official Plugins
+
+#### 🧠 Lightweight RAG Demo
+- Knowledge base management and retrieval
+- Embedding model configuration
+- Reranking model optimization
+- Document chunking and vectorization
+
+#### 🔍 Bocha Search
+- Web search
+- AI-powered intelligent search
+- Agent search mode
+- Semantic reranking
+
+#### 📊 Excel Parser
+- Support for .xlsx, .xls, .xlsm formats
+- Automatic table recognition
+- One-click install, no configuration needed
+
+#### 📋 CSV Parser
+- CSV/TSV file parsing
+- Multiple output formats
+- Lightweight implementation
+
+### Plugin Development
+- Complete development documentation
+- Rich hook system
+- Custom settings UI
+- One-click packaging and distribution
+
+📖 **Plugin Development Guide**: [Plugins/README.md](Plugins/README.md)
+
+---
+
+## 🚀 Quick Start
+
+### Option 1: Docker (Recommended)
+
+```bash
+# Pull image
+docker pull massif01/chatraw:2.0.0
+
+# Run container
+docker run -d -p 51111:51111 -v chatraw-data:/app/data massif01/chatraw:2.0.0
+```
+
+Or use docker-compose:
+
+```bash
+docker-compose up -d
+```
+
+Access: http://localhost:51111
+
+### Option 2: From Source
+
+**Requirements**: Python 3.12+
+
+```bash
+# Clone repository
+git clone https://github.com/massif-01/ChatRaw.git
+cd ChatRaw/backend
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run
+python main.py
+```
+
+Access: http://localhost:51111
+
+---
+
+## 🐳 Docker Multi-Platform Support
+
+Supports the following platforms:
+- ✅ linux/amd64 (Intel/AMD x86_64)
+- ✅ linux/arm64 (Apple Silicon M-series, ARM64 servers, Raspberry Pi 4/5)
+
+```bash
+# Docker Hub
+docker pull massif01/chatraw:latest
+
+# GitHub Container Registry
+docker pull ghcr.io/massif-01/chatraw:latest
+```
+
+---
+
+## 🛠️ Configuration
+
+### Initial Setup
+
+1. Open http://localhost:51111
+2. Click the **Settings** button in the bottom-left corner
+3. Go to **Model Settings**
+4. Add your API configuration:
+   - API Base URL (e.g., `https://api.openai.com/v1`)
+   - Model ID (e.g., `gpt-4`)
+   - API Key
+5. Click **Verify** to test the connection
+6. Click **Save**
+
+### Custom Branding
+
+In **Settings** → **Interface**, you can customize:
+- Application name and logo
+- User and AI avatars
+- Theme mode (light/dark)
+
+### Install Plugins
+
+1. Click the **Plugins** button in the bottom-left corner
+2. Browse the **Plugin Market** tab
+3. Click **Install** on any plugin
+4. After installation, enable the plugin in the **Installed** tab
+
+---
+
+## 📝 Use Cases
+
+- **Developers**: Quickly test and demo your AI models
+- **AI Hardware Vendors**: Showcase device capabilities with a ready-to-use interface
+- **Researchers**: Experiment with RAG, embeddings, and reranking
+- **Students**: Learn AI applications hands-on
+- **Enterprises**: Internal AI tools and knowledge bases
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please submit issues or pull requests.
+
+### Development Guidelines
+
+1. Fork this repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+Apache License 2.0
+
+© 2026 ChatRaw by massif-01, RMinte AI Technology Co., Ltd.
+
+---
+
+## 🔗 Links
+
+- 🌐 **GitHub**: https://github.com/massif-01/ChatRaw
+- 🐋 **Docker Hub**: https://hub.docker.com/r/massif01/chatraw
+- 📖 **Plugin Development**: [Plugins/README.md](Plugins/README.md)
+- 🐛 **Issue Tracker**: https://github.com/massif-01/ChatRaw/issues
+
+---
+
+## ⭐ Star History
+
+If you find ChatRaw useful, please give it a star! ⭐
+
+---
+
+<br><br>
+
+---
+
+<br><br>
+
+# 中文
+
+## 📸 界面展示
+
+### 主聊天界面
+![主界面](assets/main-interface.png)
+
+### 模型配置
+![模型配置](assets/model-configuration.png)
+
+### 插件市场
+![插件市场](assets/plugin-market.png)
+
+---
+
+## 🌟 为什么选择 ChatRaw？
+
+很多开发者、AI 硬件厂商，甚至是用户只需要一个简洁轻量，能够快速展示自己模型使用的应用，于是我们提供了极简、开箱即用的聊天界面，秒级部署。无需复杂配置，无重型依赖——只需一个干净、快速的 AI 聊天体验。
+
+---
+
+## 📦 第一部分：核心功能
+
+*快速、轻量、便捷*
+
+### 核心亮点
+
 - 🪶 **极致轻量** - 内存占用约 60MB，优化的二进制向量存储
 - ⚡ **极速启动** - 秒级启动，连接池加速 API 调用
 - 🎨 **自定义品牌** - 自由定制名称、Logo 和主题
@@ -49,244 +290,196 @@ ChatRaw 专为开发者和 AI 硬件厂商设计，提供**极简、开箱即用
 - 🧠 **思考模式** - 支持推理模型（DeepSeek-R1、Qwen、o1 等）
 - 📱 **响应式设计** - 完美适配桌面、平板和移动设备
 - 🌍 **双语界面** - 中英文一键切换
-- 🔒 **零注册** - 设置自动保存到本地
+- 🔒 **零注册** - 设置本地自动保存
 - 🐳 **一键部署** - Docker 30 秒部署
 
-### Quick Start | 快速开始
+### 主要功能
 
-**Option 1: One Command | 方式一：一行命令**
+**多模型配置**
+- 支持无限数量的聊天、嵌入和重排模型
+- 自动 API Key 轮换以绕过速率限制
+- 内置端点验证和测试
+
+**思考模式**
+- 为支持的模型启用深度推理
+- 可折叠的思考过程显示
+
+**自定义品牌**
+- 自定义界面：名称、Logo、副标题、头像和主题颜色
+
+**文档与图片支持**
+- 上传文档（PDF、DOCX、TXT、MD）作为聊天上下文。AI 可以阅读和引用文档内容
+- 附加图片进行多模态理解。自动压缩为 WebP 格式（约 2MB）
+
+---
+
+## 🔌 第二部分：扩展插件
+
+*灵活、自由、社区驱动*
+
+ChatRaw 拥有完整的**插件系统**以扩展功能：
+
+### 官方插件
+
+#### 🧠 轻量 RAG 演示
+- 知识库管理与检索
+- 嵌入模型配置
+- 重排模型优化
+- 文档切片与向量化
+
+#### 🔍 博查搜索
+- Web 通搜
+- AI 智能搜索
+- Agent 搜索模式
+- 语义重排
+
+#### 📊 Excel 解析器
+- 支持 .xlsx, .xls, .xlsm 格式
+- 自动表格识别
+- 一键安装，无需配置
+
+#### 📋 CSV 解析器
+- CSV/TSV 文件解析
+- 多种输出格式
+- 轻量级实现
+
+### 插件开发
+- 完整的开发文档
+- 丰富的 Hook 系统
+- 自定义设置界面
+- 一键打包分发
+
+📖 **插件开发指南**: [Plugins/README.md](Plugins/README.md)
+
+---
+
+## 🚀 快速开始
+
+### 方式一：Docker（推荐）
+
 ```bash
-docker run -d -p 51111:51111 -v chatraw_data:/app/data --name chatraw massif01/chatraw:latest
+# 拉取镜像
+docker pull massif01/chatraw:2.0.0
+
+# 运行容器
+docker run -d -p 51111:51111 -v chatraw-data:/app/data massif01/chatraw:2.0.0
 ```
 
-**Option 2: Docker Compose | 方式二：Docker Compose**
+或使用 docker-compose：
+
 ```bash
-git clone https://github.com/massif-01/ChatRaw.git
-cd ChatRaw
-docker compose up -d
+docker-compose up -d
 ```
 
-**Option 3: From Source | 方式三：源代码部署**
+访问：http://localhost:51111
+
+### 方式二：源码部署
+
+**环境要求**：Python 3.12+
+
 ```bash
+# 克隆仓库
 git clone https://github.com/massif-01/ChatRaw.git
 cd ChatRaw/backend
+
+# 安装依赖
 pip install -r requirements.txt
+
+# 运行
 python main.py
 ```
 
-**Visit | 访问 http://localhost:51111**
-
-### Core Features Overview | 核心功能概览
-
-<!-- TODO: Add screenshot of main interface showing clean, minimal design -->
-*[Screenshot: Main chat interface - clean, minimal design]*
-
-#### 1. Model Configuration | 模型配置
-Configure multiple AI models with any OpenAI-compatible API endpoint. Switch between models instantly.
-
-配置多个 AI 模型，支持任意 OpenAI 兼容 API 端点。即时切换模型。
-
-<!-- TODO: Add screenshot of model settings page -->
-*[Screenshot: Model configuration interface]*
-
-#### 2. Document Context | 文档上下文
-Upload documents (PDF, DOCX, TXT, MD) as chat context. AI can read and reference the document content.
-
-上传文档（PDF、DOCX、TXT、MD）作为聊天上下文。AI 可以阅读和引用文档内容。
-
-#### 3. Vision AI | 视觉 AI
-Attach images for multimodal understanding. Automatic compression to WebP format (~2MB).
-
-附加图片进行多模态理解。自动压缩为 WebP 格式（约 2MB）。
-
-#### 4. Thinking Mode | 思考模式
-Enable deep reasoning for models that support it. Collapsible thinking process display.
-
-为支持的模型启用深度推理。可折叠的思考过程显示。
-
-#### 5. Custom Branding | 自定义品牌
-Customize your interface: name, logo, subtitle, avatars, and theme colors.
-
-自定义界面：名称、Logo、副标题、头像和主题颜色。
+访问：http://localhost:51111
 
 ---
 
-## 🔌 Part 2: Plugin System | 第二部分：扩展插件
+## 🐳 Docker 多平台支持
 
-*Unlimited Freedom, Infinite Possibilities | 无限自由，无限可能*
+支持以下平台：
+- ✅ linux/amd64 (Intel/AMD x86_64)
+- ✅ linux/arm64 (Apple Silicon M 系列、ARM64 服务器、树莓派 4/5)
 
-### Plugin Architecture | 插件架构
-
-ChatRaw features a **lightweight, JavaScript-based plugin system** that runs entirely in the browser. Plugins can extend functionality without modifying core code, giving you complete freedom to customize your AI chat experience.
-
-ChatRaw 采用**轻量级、基于 JavaScript 的插件系统**，完全在浏览器中运行。插件可以扩展功能而无需修改核心代码，让您完全自由地定制 AI 聊天体验。
-
-### Why Plugins? | 为什么需要插件？
-
-- **Keep Core Lightweight** - Core remains minimal; add features only when needed
-- **Community-Driven** - Share and discover plugins from the community
-- **Easy Development** - Simple JavaScript API, no complex build process
-- **Secure by Design** - API keys protected via backend proxy
-- **Zero Overhead** - Plugins only load when enabled
-
-- **保持核心轻量** - 核心保持极简；仅在需要时添加功能
-- **社区驱动** - 分享和发现社区插件
-- **易于开发** - 简单的 JavaScript API，无需复杂构建流程
-- **安全设计** - API 密钥通过后端代理保护
-- **零开销** - 插件仅在启用时加载
-
-### Plugin Market | 插件市场
-
-Browse and install plugins directly from the interface. No manual file management needed.
-
-直接从界面浏览和安装插件。无需手动文件管理。
-
-<!-- TODO: Add screenshot of plugin market interface -->
-*[Screenshot: Plugin market with available plugins]*
-
-### Available Plugins | 可用插件
-
-#### Document Parsers | 文档解析器
-
-- **Excel Parser** - Parse Excel files (.xlsx, .xls) into Markdown tables
-- **CSV Parser** - Parse CSV/TSV files with auto-delimiter detection
-- **Excel 解析器** - 将 Excel 文件（.xlsx、.xls）解析为 Markdown 表格
-- **CSV 解析器** - 解析 CSV/TSV 文件，自动检测分隔符
-
-#### Search Providers | 搜索提供商
-
-- **Bocha Web Search** - Real-time web search with Web Search and AI Search modes, configurable result count and time range
-- **博查联网搜索** - 实时联网搜索，支持通搜和 AI 搜两种模式，可配置结果数量和时间范围
-
-#### RAG / Knowledge Base | RAG / 知识库
-
-- **Lightweight RAG Demo** - Full-featured RAG with knowledge base, embedding model config, and reranker support
-- **轻量 RAG 演示** - 功能完整的 RAG，包含知识库管理、嵌入模型配置和重排模型支持
-
-### Plugin Development | 插件开发
-
-Creating plugins is simple. Just JavaScript—no build tools required.
-
-创建插件很简单。只需 JavaScript——无需构建工具。
-
-**Basic Plugin Structure | 基本插件结构**
-```
-your-plugin/
-├── manifest.json    # Plugin metadata
-├── icon.png         # 128x128 icon
-└── main.js          # Plugin code
-```
-
-**Example: Document Parser | 示例：文档解析器**
-```javascript
-ChatRaw.hooks.register('parse_document', {
-    fileTypes: ['.xlsx', '.xls'],
-    handler: async (file) => {
-        // Parse file and return content
-        return { success: true, content: parsedText };
-    }
-});
-```
-
-For complete documentation, see [Plugins/README.md](Plugins/README.md)
-
-完整文档请参阅 [Plugins/README.md](Plugins/README.md)
-
-### Plugin Installation | 插件安装
-
-**From Market | 从市场安装**
-1. Open Settings → Plugins
-2. Browse Plugin Market
-3. Click Install
-
-1. 打开设置 → 插件
-2. 浏览插件市场
-3. 点击安装
-
-**Local Upload | 本地上传**
-1. Open Settings → Plugins → Install Local Plugin
-2. Select plugin zip file
-3. Plugin installed automatically
-
-1. 打开设置 → 插件 → 本地安装
-2. 选择插件 zip 文件
-3. 插件自动安装
-
-### Plugin Management | 插件管理
-
-- Enable/disable plugins with one click
-- Configure plugin settings
-- View plugin details and version
-- Uninstall unused plugins
-
-- 一键启用/禁用插件
-- 配置插件设置
-- 查看插件详情和版本
-- 卸载未使用的插件
-
----
-
-## 🎨 Interface | 界面展示
-
-| Light Mode | Dark Mode |
-|:----------:|:---------:|
-| ![Light](assets/interfacelight.png) | ![Dark](assets/interfacedark.png) |
-
----
-
-## 🔄 Update | 更新
-
-**Docker (One Command) | Docker（一行命令）**
 ```bash
+# Docker Hub
 docker pull massif01/chatraw:latest
-docker stop chatraw && docker rm chatraw
-docker run -d -p 51111:51111 -v chatraw_data:/app/data --name chatraw massif01/chatraw:latest
+
+# GitHub Container Registry
+docker pull ghcr.io/massif-01/chatraw:latest
 ```
-
-**Docker Compose | Docker Compose**
-```bash
-cd ChatRaw
-git pull origin main
-docker compose down && docker compose pull && docker compose up -d
-```
-
-**From Source | 源代码**
-```bash
-cd ChatRaw
-git pull origin main
-cd backend
-pip install -r requirements.txt
-python main.py
-```
-
-> 💡 **Note | 提示**: Your settings, documents, and installed plugins are preserved during updates. Data is stored in Docker volume (`chatraw_data`) or `data/` folder.
-
-> 💡 **提示**：更新过程中您的设置、文档和已安装的插件都会保留。数据存储在 Docker volume（`chatraw_data`）或 `data/` 文件夹中。
 
 ---
 
-## 📝 API Compatibility | API 兼容性
+## 🛠️ 配置说明
 
-| Service | URL Example |
-|---------|-------------|
-| Ollama | `http://localhost:11434/v1` |
-| vLLM | `http://localhost:8000/v1` |
-| LocalAI | `http://localhost:8080/v1` |
-| LM Studio | `http://localhost:1234/v1` |
-| OpenAI | `https://api.openai.com/v1` |
+### 初始设置
+
+1. 打开 http://localhost:51111
+2. 点击左下角的**设置**按钮
+3. 进入**模型设置**
+4. 添加你的 API 配置：
+   - API Base URL（例如：`https://api.openai.com/v1`）
+   - Model ID（例如：`gpt-4`）
+   - API Key
+5. 点击**验证**测试连接
+6. 点击**保存**
+
+### 自定义品牌
+
+在**设置** → **界面**中，你可以自定义：
+- 应用名称和 Logo
+- 用户和 AI 头像
+- 主题模式（亮色/暗色）
+
+### 安装插件
+
+1. 点击左下角的**插件**按钮
+2. 浏览**插件市场**标签页
+3. 点击任意插件的**安装**按钮
+4. 安装后，在**已安装**标签页中启用插件
 
 ---
 
-## 📄 License
+## 📝 使用场景
 
-[Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
-
-Copyright © 2026 massif-01, RMinte AI Technology Co., Ltd.
+- **开发者**：快速测试和演示你的 AI 模型
+- **AI 硬件厂商**：用即插即用的界面展示设备能力
+- **研究人员**：实验 RAG、嵌入和重排技术
+- **学生**：动手学习 AI 应用
+- **企业**：内部 AI 工具和知识库
 
 ---
 
-<div align="center">
+## 🤝 贡献
 
-**ChatRaw** - Making AI Chat Simple Again | 让 AI 聊天回归简单
+欢迎贡献！请提交 issue 或 pull request。
 
-</div>
+### 开发指南
+
+1. Fork 本仓库
+2. 创建你的特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交你的更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 打开一个 Pull Request
+
+---
+
+## 📄 开源协议
+
+Apache License 2.0
+
+© 2026 ChatRaw by massif-01, RMinte AI Technology Co., Ltd.
+
+---
+
+## 🔗 相关链接
+
+- 🌐 **GitHub**: https://github.com/massif-01/ChatRaw
+- 🐋 **Docker Hub**: https://hub.docker.com/r/massif01/chatraw
+- 📖 **插件开发**: [Plugins/README.md](Plugins/README.md)
+- 🐛 **问题反馈**: https://github.com/massif-01/ChatRaw/issues
+
+---
+
+## ⭐ Star 历史
+
+如果你觉得 ChatRaw 有用，请给我们一个 Star！⭐
