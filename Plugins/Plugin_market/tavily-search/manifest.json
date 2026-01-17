@@ -1,0 +1,32 @@
+{
+  "id": "tavily-search",
+  "version": "1.0.0",
+  "name": {
+    "en": "Tavily Web Search",
+    "zh": "Tavily 联网搜索"
+  },
+  "description": {
+    "en": "Advanced web search with AI-generated answers, images, and multiple search modes. Powered by Tavily API.",
+    "zh": "高级网络搜索，支持 AI 生成答案、图片和多种搜索模式。基于 Tavily API 驱动。"
+  },
+  "author": "ChatRaw",
+  "homepage": "https://tavily.com",
+  "icon": "icon.png",
+  "main": "main.js",
+  "type": "search_provider",
+  "hooks": ["before_send", "custom_settings"],
+  "customSettings": true,
+  "proxy": [
+    {
+      "id": "tavily",
+      "name": {
+        "en": "Tavily API Key",
+        "zh": "Tavily API Key"
+      },
+      "description": {
+        "en": "Get your free API key from tavily.com",
+        "zh": "从 tavily.com 获取您的免费 API Key"
+      }
+    }
+  ]
+}

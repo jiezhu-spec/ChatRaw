@@ -35,6 +35,22 @@
       "folder": "bocha-search"
     },
     {
+      "id": "tavily-search",
+      "version": "1.0.0",
+      "name": {
+        "en": "Tavily Search",
+        "zh": "Tavily 搜索"
+      },
+      "description": {
+        "en": "Advanced web search with AI-generated answers, images, and multiple search modes",
+        "zh": "高级网络搜索，支持 AI 生成答案、图片和多种搜索模式"
+      },
+      "author": "ChatRaw",
+      "type": "web_search",
+      "downloads": 0,
+      "folder": "tavily-search"
+    },
+    {
       "id": "excel-parser",
       "version": "1.0.0",
       "name": {
