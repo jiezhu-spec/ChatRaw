@@ -891,11 +891,15 @@
     });
     
     // Listen for settings open event
-    document.addEventListener('plugin-settings-open', (e) => {
+    window.addEventListener('plugin-settings-open', (e) => {
+        console.log('[MultiModel] Received plugin-settings-open event:', e.detail);
         if (e.detail?.pluginId === PLUGIN_ID) {
-            const container = document.getElementById('plugin-custom-settings');
+            const container = document.getElementById('plugin-custom-settings-area');
             if (container) {
+                console.log('[MultiModel] Injecting settings UI');
                 createSettingsUI(container);
+            } else {
+                console.error('[MultiModel] Container not found: plugin-custom-settings-area');
             }
         }
     });
