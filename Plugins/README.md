@@ -98,6 +98,7 @@ your-plugin/
 | `rag_enhancer` | Enhance RAG pipeline | `pre_embedding`, `post_retrieval`, `before_send`, `custom_settings` |
 | `ui_extension` | Add UI elements | `toolbar_button`, `custom_action` |
 | `message_processor` | Process messages | `before_send`, `after_receive`, `transform_input`, `transform_output` |
+| `model_manager` | Manage multiple model configs | `custom_settings` |
 
 ### Available Hooks
 
@@ -599,6 +600,7 @@ your-plugin/
 | `rag_enhancer` | 增强 RAG 流程 | `pre_embedding`, `post_retrieval`, `before_send`, `custom_settings` |
 | `ui_extension` | 添加 UI 元素 | `toolbar_button`, `custom_action` |
 | `message_processor` | 消息处理 | `before_send`, `after_receive`, `transform_input`, `transform_output` |
+| `model_manager` | 管理多个模型配置 | `custom_settings` |
 
 ### 可用钩子列表
 
