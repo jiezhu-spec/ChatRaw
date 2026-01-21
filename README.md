@@ -105,6 +105,18 @@ ChatRaw features a complete **plugin system** to extend functionality:
 - Multiple output formats
 - Lightweight implementation
 
+#### 🌐 Tavily Search
+- Web search with AI-generated answers
+- Advanced search (basic/advanced/fast/ultra-fast)
+- Image search and topic filtering
+- Time range and domain control
+
+#### 🔄 Multi-Model Manager
+- Manage multiple AI model configurations
+- Quick switching between models
+- Backup and auto-restore original config
+- Display names and activation toggles
+
 ### Plugin Development
 - Complete development documentation
 - Rich hook system
@@ -386,6 +398,18 @@ ChatRaw 拥有完整的**插件系统**以扩展功能：
 - CSV/TSV 文件解析
 - 多种输出格式
 - 轻量级实现
+
+#### 🌐 Tavily 搜索
+- Web 搜索并提供 AI 生成答案
+- 高级搜索（基础/高级/快速/超快速）
+- 图片搜索和主题筛选
+- 时间范围与域名控制
+
+#### 🔄 多模型管理
+- 管理多个 AI 模型配置
+- 快速切换模型使用
+- 备份与自动恢复原配置
+- 显示名称与激活开关
 
 ### 插件开发
 - 完整的开发文档
