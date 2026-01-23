@@ -19,8 +19,13 @@ A plugin consists of a folder with the following files:
 your-plugin/
 ├── manifest.json    # Plugin metadata (required)
 ├── icon.png         # Plugin icon, 128x128px (required)
-└── main.js          # Plugin code (required)
+├── main.js          # Plugin code (required)
+└── lib/             # Local dependencies (optional)
+    ├── library.min.js
+    └── library.min.css
 ```
+
+**Local Dependencies (lib/ directory)**: For fully offline plugins, you can bundle dependencies locally instead of loading from CDN. Files in the `lib/` directory are served via `/api/plugins/{plugin_id}/lib/{filename}`. Subdirectories are supported (e.g., `lib/fonts/`).
 
 ### manifest.json
 
@@ -509,6 +514,79 @@ To distribute your plugin:
    - ❌ Files outside plugin folder
    - ✅ All files inside single plugin folder
 
+### Advanced: Local Dependencies and CSS Loading
+
+For plugins that need to work completely offline, you can bundle dependencies in the `lib/` directory.
+
+**Loading CSS files** (the framework only supports JS, CSS must be loaded manually):
+
+```javascript
+function loadCSS(url) {
+    return new Promise((resolve, reject) => {
+        const existing = document.querySelector(`link[href="${url}"]`);
+        if (existing) { resolve(); return; }
+        
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = url;
+        link.onload = resolve;
+        link.onerror = reject;
+        document.head.appendChild(link);
+    });
+}
+
+// Usage with local lib
+const PLUGIN_ID = 'your-plugin';
+await loadCSS(`/api/plugins/${PLUGIN_ID}/lib/styles.min.css`);
+```
+
+**Loading local JS dependencies**:
+
+```javascript
+async function loadScript(url) {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = url;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
+// Load from lib directory
+await loadScript(`/api/plugins/${PLUGIN_ID}/lib/library.min.js`);
+```
+
+### Advanced: Using after_receive Hook
+
+The `after_receive` hook allows you to modify AI responses after they are received but before display. This is useful for enhancing rendered content.
+
+```javascript
+ChatRawPlugin.hooks.register('after_receive', {
+    priority: 10,  // Lower priority = runs later
+    
+    handler: async (message) => {
+        if (!message?.content) {
+            return { success: false };  // No modification
+        }
+        
+        let content = message.content;
+        
+        // Example: Add custom processing
+        content = processContent(content);
+        
+        // Return modified content
+        return { success: true, content };
+    }
+});
+```
+
+**Important notes**:
+- Return `{ success: false }` if you don't want to modify the content
+- Return `{ success: true, content: '...' }` to replace the message content
+- The hook receives the full message object including `role`, `content`, `thinking`, etc.
+- Multiple plugins can register the same hook; the first one returning `success: true` wins
+
 ### Best Practices
 
 1. **Keep it lightweight**: Minimize dependencies and file sizes
@@ -566,8 +644,13 @@ ChatRaw 插件通过轻量级的 JavaScript 架构扩展应用功能。插件在
 your-plugin/
 ├── manifest.json    # 插件元数据（必需）
 ├── icon.png         # 插件图标，128x128像素（必需）
-└── main.js          # 插件代码（必需）
+├── main.js          # 插件代码（必需）
+└── lib/             # 本地依赖库（可选）
+    ├── library.min.js
+    └── library.min.css
 ```
+
+**本地依赖 (lib/ 目录)**：对于需要完全离线运行的插件，可以将依赖库打包到本地，而不是从 CDN 加载。`lib/` 目录下的文件通过 `/api/plugins/{plugin_id}/lib/{filename}` 提供访问。支持子目录（如 `lib/fonts/`）。
 
 ### manifest.json
 
@@ -1055,6 +1138,79 @@ const allData = ChatRaw.storage.getAll(PLUGIN_ID);
    - ✅ 正确结构：`your-plugin.zip/your-plugin/manifest.json`
    - ❌ 文件在插件文件夹外
    - ✅ 所有文件在单个插件文件夹内
+
+### 进阶：本地依赖和 CSS 加载
+
+对于需要完全离线运行的插件，可以将依赖打包到 `lib/` 目录中。
+
+**加载 CSS 文件**（框架仅支持 JS，CSS 需要手动加载）：
+
+```javascript
+function loadCSS(url) {
+    return new Promise((resolve, reject) => {
+        const existing = document.querySelector(`link[href="${url}"]`);
+        if (existing) { resolve(); return; }
+        
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = url;
+        link.onload = resolve;
+        link.onerror = reject;
+        document.head.appendChild(link);
+    });
+}
+
+// 使用本地 lib
+const PLUGIN_ID = 'your-plugin';
+await loadCSS(`/api/plugins/${PLUGIN_ID}/lib/styles.min.css`);
+```
+
+**加载本地 JS 依赖**：
+
+```javascript
+async function loadScript(url) {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = url;
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
+// 从 lib 目录加载
+await loadScript(`/api/plugins/${PLUGIN_ID}/lib/library.min.js`);
+```
+
+### 进阶：使用 after_receive 钩子
+
+`after_receive` 钩子允许你在 AI 响应接收后、显示前修改内容。这对于增强渲染效果非常有用。
+
+```javascript
+ChatRawPlugin.hooks.register('after_receive', {
+    priority: 10,  // 优先级越低，执行越晚
+    
+    handler: async (message) => {
+        if (!message?.content) {
+            return { success: false };  // 不修改
+        }
+        
+        let content = message.content;
+        
+        // 示例：添加自定义处理
+        content = processContent(content);
+        
+        // 返回修改后的内容
+        return { success: true, content };
+    }
+});
+```
+
+**重要说明**：
+- 如果不想修改内容，返回 `{ success: false }`
+- 返回 `{ success: true, content: '...' }` 来替换消息内容
+- 钩子接收完整的消息对象，包括 `role`、`content`、`thinking` 等
+- 多个插件可以注册同一个钩子；第一个返回 `success: true` 的生效
 
 ### 最佳实践
 

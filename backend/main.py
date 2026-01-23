@@ -2007,6 +2007,51 @@ async def get_plugin_js(plugin_id: str):
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
 
+@app.get("/api/plugins/{plugin_id}/lib/{filename:path}")
+async def get_plugin_lib(plugin_id: str, filename: str):
+    """Get plugin library file from lib directory (supports subdirectories like fonts/)"""
+    # Validate plugin ID
+    if not validate_plugin_id(plugin_id):
+        return JSONResponse({"error": "Invalid plugin ID"}, status_code=400)
+    
+    # Normalize and validate filename to prevent path traversal
+    # Allow subdirectories like "fonts/file.woff2" but block ".." and absolute paths
+    filename = os.path.normpath(filename)
+    if not filename or filename.startswith('.') or '..' in filename or filename.startswith('/'):
+        return JSONResponse({"error": "Invalid filename"}, status_code=400)
+    
+    plugin_dir = os.path.join(PLUGINS_INSTALLED_DIR, plugin_id)
+    lib_dir = os.path.join(plugin_dir, "lib")
+    lib_path = os.path.join(lib_dir, filename)
+    
+    # Security check: ensure the resolved path is within lib directory
+    lib_path = os.path.realpath(lib_path)
+    lib_dir = os.path.realpath(lib_dir)
+    if not lib_path.startswith(lib_dir + os.sep) and lib_path != lib_dir:
+        return JSONResponse({"error": "Access denied"}, status_code=403)
+    
+    if not os.path.exists(lib_path) or not os.path.isfile(lib_path):
+        return JSONResponse({"error": "Library file not found"}, status_code=404)
+    
+    # Determine MIME type based on file extension
+    media_type = "application/octet-stream"
+    if filename.endswith(".js"):
+        media_type = "application/javascript"
+    elif filename.endswith(".css"):
+        media_type = "text/css"
+    elif filename.endswith(".json"):
+        media_type = "application/json"
+    elif filename.endswith(".woff2"):
+        media_type = "font/woff2"
+    elif filename.endswith(".woff"):
+        media_type = "font/woff"
+    elif filename.endswith(".ttf"):
+        media_type = "font/ttf"
+    elif filename.endswith(".eot"):
+        media_type = "application/vnd.ms-fontobject"
+    
+    return FileResponse(lib_path, media_type=media_type)
+
 @app.get("/api/plugins/{plugin_id}/icon")
 async def get_plugin_icon(plugin_id: str):
     """Get plugin icon"""

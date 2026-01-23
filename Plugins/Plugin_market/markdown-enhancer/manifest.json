@@ -1,0 +1,66 @@
+{
+  "id": "markdown-enhancer",
+  "version": "1.0.0",
+  "name": {
+    "en": "Markdown Renderer Plus",
+    "zh": "Markdown 渲染增强"
+  },
+  "description": {
+    "en": "Enhanced rendering with math formulas (KaTeX), diagrams (Mermaid), code copy buttons, and extended syntax highlighting. Fully offline.",
+    "zh": "增强渲染：数学公式 (KaTeX)、流程图 (Mermaid)、代码复制按钮、扩展语法高亮。完全离线可用。"
+  },
+  "author": "ChatRaw",
+  "homepage": "https://github.com/massif-01/ChatRaw",
+  "icon": "icon.png",
+  "main": "main.js",
+  "type": "message_processor",
+  "hooks": ["after_receive"],
+  "settings": [
+    {
+      "id": "enableKatex",
+      "type": "boolean",
+      "default": true,
+      "label": {
+        "en": "Math Formulas (KaTeX)",
+        "zh": "数学公式 (KaTeX)"
+      }
+    },
+    {
+      "id": "enableMermaid",
+      "type": "boolean",
+      "default": true,
+      "label": {
+        "en": "Diagrams (Mermaid)",
+        "zh": "图表 (Mermaid)"
+      }
+    },
+    {
+      "id": "enableCopyButton",
+      "type": "boolean",
+      "default": true,
+      "label": {
+        "en": "Code Copy Button",
+        "zh": "代码复制按钮"
+      }
+    },
+    {
+      "id": "enableExtraLanguages",
+      "type": "boolean",
+      "default": true,
+      "label": {
+        "en": "Extended Syntax Highlighting (15+ languages)",
+        "zh": "扩展语法高亮 (15+ 语言)"
+      }
+    },
+    {
+      "id": "mermaidTheme",
+      "type": "select",
+      "options": ["default", "dark", "forest", "neutral"],
+      "default": "default",
+      "label": {
+        "en": "Mermaid Theme",
+        "zh": "Mermaid 主题"
+      }
+    }
+  ]
+}

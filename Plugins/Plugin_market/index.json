@@ -97,6 +97,22 @@
       "type": "model_manager",
       "downloads": 0,
       "folder": "multi-model-manager"
+    },
+    {
+      "id": "markdown-enhancer",
+      "version": "1.0.0",
+      "name": {
+        "en": "Markdown Renderer Plus",
+        "zh": "Markdown 渲染增强"
+      },
+      "description": {
+        "en": "Enhanced rendering with math formulas (KaTeX), diagrams (Mermaid), code copy buttons. Fully offline.",
+        "zh": "增强渲染：数学公式 (KaTeX)、流程图 (Mermaid)、代码复制按钮。完全离线可用。"
+      },
+      "author": "ChatRaw",
+      "type": "message_processor",
+      "downloads": 0,
+      "folder": "markdown-enhancer"
     }
   ]
 }

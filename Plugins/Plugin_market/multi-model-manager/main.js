@@ -351,8 +351,7 @@
     
     async function verifyModel(model) {
         if (!model.api_url || !model.model_id) {
-            model.status = 'error';
-            model.verifyMessage = 'API URL and Model ID required';
+            alert('API URL and Model ID required');
             return false;
         }
         
@@ -377,20 +376,24 @@
             
             if (result.success) {
                 model.status = 'success';
-                model.verifyMessage = t('verifySuccess');
+                model.verifyMessage = '';
+                renderUI();
+                alert(t('verifySuccess'));
                 return true;
             } else {
                 model.status = 'error';
-                model.verifyMessage = result.error || t('verifyFailed');
+                model.verifyMessage = '';
+                renderUI();
+                alert(result.error || t('verifyFailed'));
                 return false;
             }
         } catch (e) {
             verifyingModelId = null;
             model.status = 'error';
-            model.verifyMessage = e.message || t('verifyFailed');
-            return false;
-        } finally {
+            model.verifyMessage = '';
             renderUI();
+            alert(e.message || t('verifyFailed'));
+            return false;
         }
     }
     

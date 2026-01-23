@@ -117,6 +117,13 @@ ChatRaw features a complete **plugin system** to extend functionality:
 - Backup and auto-restore original config
 - Display names and activation toggles
 
+#### ✨ Markdown Renderer Plus
+- KaTeX math formulas ($...$ and $$...$$)
+- Mermaid diagrams (flowcharts, sequence, etc.)
+- Code copy buttons for all code blocks
+- Extended syntax highlighting (15+ languages)
+- Fully offline - all dependencies bundled
+
 ### Plugin Development
 - Complete development documentation
 - Rich hook system
@@ -410,6 +417,13 @@ ChatRaw 拥有完整的**插件系统**以扩展功能：
 - 快速切换模型使用
 - 备份与自动恢复原配置
 - 显示名称与激活开关
+
+#### ✨ Markdown 渲染增强
+- KaTeX 数学公式（$...$ 和 $$...$$）
+- Mermaid 图表（流程图、时序图等）
+- 代码块复制按钮
+- 扩展语法高亮（15+ 语言）
+- 完全离线可用 - 所有依赖已打包
 
 ### 插件开发
 - 完整的开发文档
