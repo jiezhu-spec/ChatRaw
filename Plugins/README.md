@@ -524,7 +524,23 @@ To distribute your plugin:
    - Use `POST /api/models` to save model configurations (for RAG plugins)
 9. **Load data on open**: Always reload settings when the settings modal opens
 10. **Custom settings listener**: Use `plugin-settings-open` event to inject custom UI
-11. **Choose the right storage method**:
+11. **Always `await` async operations**: When calling async functions (like `saveSettings()`) in event handlers, always use `await` to ensure operations complete before proceeding:
+
+```javascript
+// ❌ Wrong - data may not be saved
+button.onclick = () => {
+    saveSettings();  // Missing await!
+    renderUI();
+};
+
+// ✅ Correct - wait for save to complete
+button.onclick = async () => {
+    await saveSettings();
+    renderUI();
+};
+```
+
+12. **Choose the right storage method**:
 
 | Storage Method | Location | After Docker Restart | Use Case |
 |----------------|----------|---------------------|----------|
@@ -1055,7 +1071,23 @@ const allData = ChatRaw.storage.getAll(PLUGIN_ID);
    - 使用 `POST /api/models` 保存模型配置（用于 RAG 插件）
 9. **打开时加载数据**：设置模态框打开时始终重新加载设置
 10. **自定义设置监听器**：使用 `plugin-settings-open` 事件注入自定义 UI
-11. **选择正确的存储方式**：
+11. **异步操作必须 `await`**：在事件处理函数中调用异步函数（如 `saveSettings()`）时，必须使用 `await` 确保操作完成后再继续：
+
+```javascript
+// ❌ 错误 - 数据可能未保存
+button.onclick = () => {
+    saveSettings();  // 缺少 await！
+    renderUI();
+};
+
+// ✅ 正确 - 等待保存完成
+button.onclick = async () => {
+    await saveSettings();
+    renderUI();
+};
+```
+
+12. **选择正确的存储方式**：
 
 | 存储方式 | 存储位置 | Docker 重启后 | 适用场景 |
 |---------|---------|--------------|---------|
