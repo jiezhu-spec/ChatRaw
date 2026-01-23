@@ -646,44 +646,37 @@
     }
     
     function getMessageTextContent(element) {
-        // Clone to avoid modifying original
-        const clone = element.cloneNode(true);
+        // The actual message content is in a div with x-html attribute (rendered markdown)
+        // Structure: .message-content > div[x-html] contains the actual content
+        const contentDiv = element.querySelector('div[x-html]') || 
+                          element.querySelector('div[x-show="msg.content"]');
         
-        // Remove all non-content elements
-        clone.querySelectorAll([
-            '.code-copy-btn',
-            '.message-copy-btn', 
-            '.message-copy-container',
-            '.thinking-block',      // Thinking process section
-            '.thinking-header',
-            '.thinking-content',
-            '.rag-references',      // RAG references section
-            '.rag-references-header',
-            '.rag-references-list',
-            '.typing-indicator',    // Typing indicator
-            '.mermaid-container',   // Mermaid diagrams (keep code representation)
-            'svg'                   // Remove SVG icons
-        ].join(', ')).forEach(el => el.remove());
+        if (!contentDiv) {
+            // Fallback: just get text but exclude known UI elements
+            const clone = element.cloneNode(true);
+            clone.querySelectorAll('.thinking-block, .rag-references, .typing-indicator, .message-copy-container, svg').forEach(el => el.remove());
+            return (clone.textContent || '').trim();
+        }
         
-        // Convert KaTeX back to text (approximate)
+        // Clone the content div
+        const clone = contentDiv.cloneNode(true);
+        
+        // Remove any copy buttons that might be inside
+        clone.querySelectorAll('.code-copy-btn, .message-copy-btn, .message-copy-container, svg').forEach(el => el.remove());
+        
+        // Convert KaTeX back to LaTeX source
         clone.querySelectorAll('.katex-block').forEach(el => {
             const annotation = el.querySelector('annotation[encoding="application/x-tex"]');
-            if (annotation) {
-                el.textContent = '$$' + annotation.textContent + '$$';
-            }
+            el.textContent = annotation ? '$$' + annotation.textContent + '$$' : el.textContent;
         });
         clone.querySelectorAll('.katex-inline').forEach(el => {
             const annotation = el.querySelector('annotation[encoding="application/x-tex"]');
-            if (annotation) {
-                el.textContent = '$' + annotation.textContent + '$';
-            }
+            el.textContent = annotation ? '$' + annotation.textContent + '$' : el.textContent;
         });
         
-        // Get text content and clean up whitespace
+        // Get clean text
         let text = clone.textContent || clone.innerText || '';
-        // Collapse multiple newlines/spaces into single ones
-        text = text.replace(/\n{3,}/g, '\n\n').trim();
-        return text;
+        return text.replace(/\n{3,}/g, '\n\n').trim();
     }
     
     // ============ Main Processing Function ============
