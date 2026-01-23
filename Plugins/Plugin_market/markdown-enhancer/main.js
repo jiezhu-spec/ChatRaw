@@ -27,6 +27,10 @@
     let observerInitialized = false;
     let mermaidCounter = 0;
     let settings = {};
+    let pluginEnabled = true;
+    let mainObserver = null;
+    let headStyleObserver = null;
+    let pluginStateTimer = null;
     
     // Content stability tracking - wait for streaming to complete
     const contentStabilityMap = new Map();
@@ -122,7 +126,8 @@
                 window.mermaid.initialize({
                     startOnLoad: false,
                     theme: theme === 'dark' ? 'dark' : theme,
-                    securityLevel: 'strict',
+                    // Use sandbox for maximum isolation (iframe-based rendering)
+                    securityLevel: 'sandbox',
                     fontFamily: 'inherit',
                     // Disable flowchart htmlLabels to prevent CSS issues
                     flowchart: {
@@ -133,14 +138,7 @@
                 // Mermaid may inject global <style> into <head>. We'll relocate new Mermaid styles
                 // into Shadow DOM per-render, but also remove any existing Mermaid global styles now.
                 try {
-                    const headStyles = Array.from(document.head.querySelectorAll('style'));
-                    for (const styleEl of headStyles) {
-                        const id = (styleEl.id || '').toLowerCase();
-                        const css = styleEl.textContent || '';
-                        if (id.includes('mermaid') || css.includes('mermaid') || css.includes('.mermaid')) {
-                            styleEl.remove();
-                        }
-                    }
+                    removeMermaidHeadStyles();
                 } catch (_) {
                     // ignore
                 }
@@ -152,6 +150,28 @@
             console.error('[MarkdownEnhancer] Failed to load Mermaid:', e);
         }
         return false;
+    }
+
+    function removeMermaidHeadStyles() {
+        const headStyles = Array.from(document.head.querySelectorAll('style'));
+        for (const styleEl of headStyles) {
+            const id = (styleEl.id || '').toLowerCase();
+            const css = styleEl.textContent || '';
+            if (id.includes('mermaid') || css.includes('mermaid') || css.includes('.mermaid')) {
+                styleEl.remove();
+            }
+        }
+    }
+
+    function cleanupPluginArtifacts() {
+        // Remove plugin-injected styles
+        const styleEl = document.getElementById('markdown-enhancer-styles');
+        if (styleEl) styleEl.remove();
+        // Remove copy buttons
+        document.querySelectorAll('.message-copy-container').forEach(el => el.remove());
+        document.querySelectorAll('.code-copy-btn').forEach(el => el.remove());
+        // Remove Mermaid global styles if any
+        removeMermaidHeadStyles();
     }
     
     async function initExtraLanguages() {
@@ -537,16 +557,25 @@
     
     // ============ Message Copy Button ============
     function addMessageCopyButton(element) {
-        // Find assistant message content areas
-        const messageContents = element.querySelectorAll('.message.assistant .message-content');
+        // Normalize targets for message-content elements
+        const targets = [];
+        if (element?.classList?.contains('message-content')) {
+            targets.push(element);
+        } else if (element?.classList?.contains('message')) {
+            const content = element.querySelector('.message-content');
+            if (content) targets.push(content);
+        } else {
+            element.querySelectorAll?.('.message.assistant .message-content').forEach(el => targets.push(el));
+        }
         
-        for (const content of messageContents) {
+        for (const content of targets) {
+            const msg = content.closest('.message');
+            if (!msg || !msg.classList.contains('assistant')) continue;
             // Skip if already has copy button
             if (content.querySelector('.message-copy-container')) continue;
             
             // Check if message is still streaming (has typing indicator visible)
             // Alpine.js x-show sets display: none when hidden
-            const msg = content.closest('.message');
             const typingIndicator = msg?.querySelector('.typing-indicator');
             if (typingIndicator) {
                 const computedStyle = window.getComputedStyle(typingIndicator);
@@ -635,6 +664,7 @@
     
     // ============ Main Processing Function ============
     async function processElement(element) {
+        if (!pluginEnabled) return;
         // Load dependencies if needed
         if (settings.enableKatex !== false) {
             await initKatex();
@@ -656,6 +686,7 @@
     
     // ============ Content Stability Detection ============
     function scheduleProcessing(element) {
+        if (!pluginEnabled) return;
         // Use element or a unique identifier as key
         const key = element;
         
@@ -676,7 +707,7 @@
     
     // ============ MutationObserver Setup ============
     function initObserver() {
-        if (observerInitialized) return;
+        if (observerInitialized || !pluginEnabled) return;
         
         injectStyles();
         
@@ -734,8 +765,47 @@
             }
         }
         
+        mainObserver = observer;
         observerInitialized = true;
         console.log('[MarkdownEnhancer] Observer initialized with content stability detection');
+    }
+
+    function stopObserver() {
+        if (mainObserver) {
+            mainObserver.disconnect();
+            mainObserver = null;
+        }
+        observerInitialized = false;
+    }
+
+    function initHeadStyleGuard() {
+        if (headStyleObserver) return;
+        headStyleObserver = new MutationObserver(() => {
+            removeMermaidHeadStyles();
+        });
+        headStyleObserver.observe(document.head, { childList: true, subtree: true });
+    }
+
+    async function refreshPluginState() {
+        try {
+            const res = await fetch('/api/plugins');
+            if (!res.ok) return;
+            const plugins = await res.json();
+            const plugin = plugins.find(p => p.id === PLUGIN_ID);
+            const enabled = plugin?.enabled !== false;
+            if (enabled !== pluginEnabled) {
+                pluginEnabled = enabled;
+                if (!pluginEnabled) {
+                    stopObserver();
+                    cleanupPluginArtifacts();
+                } else {
+                    injectStyles();
+                    initObserver();
+                }
+            }
+        } catch (e) {
+            // ignore transient errors
+        }
     }
     
     // ============ Load Settings ============
@@ -748,6 +818,7 @@
                 if (plugin?.settings_values) {
                     settings = plugin.settings_values;
                 }
+                pluginEnabled = plugin?.enabled !== false;
             }
         } catch (e) {
             console.error('[MarkdownEnhancer] Failed to load settings:', e);
@@ -757,7 +828,16 @@
     // ============ Initialize ============
     async function init() {
         await loadSettings();
-        initObserver();
+        initHeadStyleGuard();
+        if (pluginEnabled) {
+            initObserver();
+        } else {
+            cleanupPluginArtifacts();
+        }
+        // Periodically refresh plugin enabled state to handle toggles
+        if (!pluginStateTimer) {
+            pluginStateTimer = setInterval(refreshPluginState, 2000);
+        }
         console.log('[MarkdownEnhancer] Plugin initialized');
     }
     
