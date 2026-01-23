@@ -130,6 +130,20 @@
                         useMaxWidth: true
                     }
                 });
+                // Mermaid may inject global <style> into <head>. We'll relocate new Mermaid styles
+                // into Shadow DOM per-render, but also remove any existing Mermaid global styles now.
+                try {
+                    const headStyles = Array.from(document.head.querySelectorAll('style'));
+                    for (const styleEl of headStyles) {
+                        const id = (styleEl.id || '').toLowerCase();
+                        const css = styleEl.textContent || '';
+                        if (id.includes('mermaid') || css.includes('mermaid') || css.includes('.mermaid')) {
+                            styleEl.remove();
+                        }
+                    }
+                } catch (_) {
+                    // ignore
+                }
                 mermaidLoaded = true;
                 console.log('[MarkdownEnhancer] Mermaid loaded');
                 return true;
@@ -440,7 +454,22 @@
             
             // Render asynchronously
             try {
+                // Mermaid may inject global styles into document.head during render(). Capture and relocate them.
+                const headStylesBefore = new Set(Array.from(document.head.querySelectorAll('style')));
                 const { svg } = await window.mermaid.render(`${id}-svg`, code);
+                const newHeadStyles = Array.from(document.head.querySelectorAll('style'))
+                    .filter(el => !headStylesBefore.has(el));
+
+                let relocatedCss = '';
+                for (const styleEl of newHeadStyles) {
+                    const id = (styleEl.id || '').toLowerCase();
+                    const css = styleEl.textContent || '';
+                    if (id.includes('mermaid') || css.includes('mermaid') || css.includes('.mermaid')) {
+                        relocatedCss += `\n/* relocated from <head> */\n${css}\n`;
+                        styleEl.remove();
+                    }
+                }
+
                 container.innerHTML = '';
                 container.classList.remove('mermaid-loading');
                 container.classList.add('mermaid-rendered');
@@ -451,7 +480,7 @@
                 shadowHost.className = 'mermaid-shadow-host';
                 shadowHost.style.cssText = 'display: flex; justify-content: center; width: 100%;';
                 const shadow = shadowHost.attachShadow({ mode: 'closed' });
-                shadow.innerHTML = svg;
+                shadow.innerHTML = `${relocatedCss ? `<style>${relocatedCss}</style>` : ''}${svg}`;
                 container.appendChild(shadowHost);
             } catch (e) {
                 console.error('[MarkdownEnhancer] Mermaid render error:', e);
@@ -672,7 +701,11 @@
                 
                 // Handle character data changes (streaming content updates)
                 if (mutation.type === 'characterData' || mutation.type === 'childList') {
-                    const messageContent = mutation.target.closest?.('.message-content');
+                    // mutation.target can be a Text node (no .closest). Normalize to an Element first.
+                    const targetEl = mutation.target?.nodeType === Node.TEXT_NODE
+                        ? mutation.target.parentElement
+                        : mutation.target;
+                    const messageContent = targetEl?.closest?.('.message-content');
                     if (messageContent) {
                         elementsToProcess.add(messageContent);
                     }
