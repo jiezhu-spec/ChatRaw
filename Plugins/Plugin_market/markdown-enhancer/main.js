@@ -336,8 +336,8 @@
     function processKatexInElement(element) {
         if (!window.katex || settings.enableKatex === false) return;
         
-        // Skip if already processed
-        if (element.dataset.katexProcessed === 'true') return;
+        // Don't skip based on katexProcessed - content may have changed during streaming
+        // Instead, rely on the walker to only find unprocessed text nodes
         
         // Process text nodes to find math expressions
         const walker = document.createTreeWalker(
@@ -373,11 +373,8 @@
             nodesToProcess.push(currentNode);
         }
         
-        if (nodesToProcess.length > 0) {
-            for (const textNode of nodesToProcess) {
-                processKatexTextNode(textNode);
-            }
-            element.dataset.katexProcessed = 'true';
+        for (const textNode of nodesToProcess) {
+            processKatexTextNode(textNode);
         }
     }
     
@@ -556,6 +553,9 @@
     }
     
     // ============ Message Copy Button ============
+    // Track elements that need copy button recheck when streaming ends
+    const pendingCopyButtonChecks = new WeakSet();
+    
     function addMessageCopyButton(element) {
         // Normalize targets for message-content elements
         const targets = [];
@@ -581,6 +581,14 @@
                 const computedStyle = window.getComputedStyle(typingIndicator);
                 if (computedStyle.display !== 'none') {
                     // Typing indicator is visible, message is still streaming
+                    // Schedule a recheck for later
+                    if (!pendingCopyButtonChecks.has(content)) {
+                        pendingCopyButtonChecks.add(content);
+                        setTimeout(() => {
+                            pendingCopyButtonChecks.delete(content);
+                            addMessageCopyButton(content);
+                        }, 1000);
+                    }
                     continue;
                 }
             }
@@ -749,8 +757,8 @@
             }
         });
         
-        // Start observing
-        const container = document.querySelector('.messages-container') || document.body;
+        // Start observing - note: ChatRaw uses class "messages" not "messages-container"
+        const container = document.querySelector('.messages') || document.querySelector('.messages-container') || document.body;
         observer.observe(container, {
             childList: true,
             subtree: true,
@@ -764,6 +772,15 @@
                 scheduleProcessing(msg);
             }
         }
+        
+        // Also ensure copy buttons are added to existing completed messages
+        setTimeout(() => {
+            document.querySelectorAll('.message.assistant .message-content').forEach(content => {
+                if (!content.querySelector('.message-copy-container')) {
+                    addMessageCopyButton(content);
+                }
+            });
+        }, 1500);
         
         mainObserver = observer;
         observerInitialized = true;
