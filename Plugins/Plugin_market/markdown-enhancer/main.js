@@ -867,10 +867,8 @@
         } else {
             cleanupPluginArtifacts();
         }
-        // Periodically refresh plugin enabled state to handle toggles
-        if (!pluginStateTimer) {
-            pluginStateTimer = setInterval(refreshPluginState, 2000);
-        }
+        // Note: removed periodic polling to avoid rate limiting issues
+        // Users should reload the page after toggling plugin state
         console.log('[MarkdownEnhancer] Plugin initialized');
     }
     
