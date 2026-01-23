@@ -367,7 +367,8 @@
     
     function createSettingsUI() {
         return `
-            <div class="tavily-settings" style="padding:0;">
+            <div class="tavily-settings" style="display:flex; flex-direction:column; height:100%; max-height:70vh;">
+                <div class="tavily-scrollable" style="flex:1; overflow-y:auto; min-height:0;">
                 <!-- API Key Section -->
                 <div class="tavily-section" style="padding:20px 24px; border-bottom:1px solid var(--border-color);">
                     <h3 style="margin:0 0 16px 0; font-size:1rem; font-weight:600;">${t('apiKeyLabel')}</h3>
@@ -479,9 +480,10 @@
                         </div>
                     </div>
                 </div>
+                </div>
                 
-                <!-- Actions Bar -->
-                <div style="display:flex; justify-content:flex-end; gap:12px; padding:16px 24px; border-top:1px solid var(--border-color);">
+                <!-- Actions Bar (fixed at bottom) -->
+                <div style="flex-shrink:0; display:flex; justify-content:flex-end; gap:12px; padding:16px 24px; border-top:1px solid var(--border-color); background:var(--bg-primary);">
                     <button class="btn-secondary" onclick="window._tavilyPlugin.closeSettings()" 
                         style="padding:10px 24px; border:1px solid var(--border-color); border-radius:var(--radius-sm); background:transparent; cursor:pointer;">
                         ${t('cancel')}

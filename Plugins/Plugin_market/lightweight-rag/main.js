@@ -416,9 +416,10 @@
     
     function createSettingsUI() {
         return `
-            <div class="rag-plugin-settings" style="display:flex; height:100%; min-height:400px;">
+            <div class="rag-plugin-wrapper" style="display:flex; flex-direction:column; height:100%; min-height:400px; max-height:70vh;">
+            <div class="rag-plugin-settings" style="display:flex; flex:1; min-height:0; overflow:hidden;">
                 <!-- Left Navigation -->
-                <div class="rag-settings-nav" style="width:200px; border-right:1px solid var(--border-color); padding:20px 0;">
+                <div class="rag-settings-nav" style="width:200px; border-right:1px solid var(--border-color); padding:20px 0; overflow-y:auto;">
                     <div class="rag-nav-item ${currentTab === 'rag' ? 'active' : ''}" data-tab="rag" 
                         style="padding:12px 24px; cursor:pointer; ${currentTab === 'rag' ? 'background:var(--bg-hover); font-weight:500;' : ''}">
                         ${t('ragSettings')}
@@ -515,8 +516,8 @@
                 </div>
             </div>
             
-            <!-- Actions Bar -->
-            <div class="rag-actions-bar" style="display:flex; justify-content:flex-end; gap:12px; padding:16px 24px; border-top:1px solid var(--border-color);">
+            <!-- Actions Bar (fixed at bottom) -->
+            <div class="rag-actions-bar" style="flex-shrink:0; display:flex; justify-content:flex-end; gap:12px; padding:16px 24px; border-top:1px solid var(--border-color); background:var(--bg-primary);">
                 <button class="btn-secondary" onclick="window._ragPlugin.closeSettings()" 
                     style="padding:10px 24px; border:1px solid var(--border-color); border-radius:var(--radius-sm); background:transparent; cursor:pointer;">
                     ${t('cancel')}
@@ -525,6 +526,7 @@
                     style="padding:10px 24px; background:var(--text-primary); color:var(--bg-primary); border:none; border-radius:var(--radius-sm); cursor:pointer; font-weight:500;">
                     ${t('save')}
                 </button>
+            </div>
             </div>
         `;
     }

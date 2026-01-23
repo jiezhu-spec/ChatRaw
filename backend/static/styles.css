@@ -2418,12 +2418,15 @@ input[type=range]::-webkit-slider-thumb:hover {
 
 .plugin-settings-content.custom-settings-content {
     padding: 0;
-    overflow-y: auto;
+    overflow: hidden;  /* Let child handle scrolling */
+    min-height: 0;  /* Critical for flex shrinking */
 }
 
 /* Plugin Custom Settings Container */
 .plugin-custom-settings {
-    height: 100%;
+    flex: 1;
+    min-height: 0;  /* Critical: allows flex child to shrink below content size */
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
 }
