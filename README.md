@@ -1,5 +1,7 @@
 <div align="center">
 
+![ChatRaw Template](assets/chatrawtemplate.png)
+
 # ChatRaw
 
 **Lightweight AI Chat Interface with Plugin System | 轻量 AI 聊天界面与插件系统**
