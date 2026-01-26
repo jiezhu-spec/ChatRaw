@@ -228,7 +228,7 @@ docker stop chatraw && docker rm chatraw
 docker pull massif01/chatraw:2.0.4
 
 # Run new container (data persists in volume)
-docker run -d -p 51111:51111 -v chatraw-data:/app/data massif01/chatraw:2.0.0
+docker run -d -p 51111:51111 -v chatraw-data:/app/data massif01/chatraw:2.0.4
 ```
 
 Or with docker-compose:
@@ -482,7 +482,7 @@ ChatRaw 拥有完整的**插件系统**以扩展功能：
 docker pull massif01/chatraw:2.0.4
 
 # 运行容器
-docker run -d -p 51111:51111 -v chatraw-data:/app/data massif01/chatraw:2.0.0
+docker run -d -p 51111:51111 -v chatraw-data:/app/data massif01/chatraw:2.0.4
 ```
 
 或使用 docker-compose：
@@ -544,7 +544,7 @@ docker stop chatraw && docker rm chatraw
 docker pull massif01/chatraw:2.0.4
 
 # 运行新容器（数据持久化在卷中）
-docker run -d -p 51111:51111 -v chatraw-data:/app/data massif01/chatraw:2.0.0
+docker run -d -p 51111:51111 -v chatraw-data:/app/data massif01/chatraw:2.0.4
 ```
 
 或使用 docker-compose：
