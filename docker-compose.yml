@@ -1,6 +1,6 @@
 services:
   chatraw:
-    image: massif01/chatraw:latest
+    image: docker.io/massif01/chatraw:latest
     container_name: chatraw
     platform: linux/amd64
     ports:
