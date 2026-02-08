@@ -802,6 +802,8 @@ button.onclick = async () => {
     ```
     - Use content stability detection (debounce ~800ms) to ensure streaming is complete
 
+16. **No emoji**: Do **not** use emoji anywhere in your plugin (code, UI, toasts, modal content, manifest). Plugins that use emoji will not pass review.
+
 ### Common Pitfalls
 
 Watch out for these common mistakes:
@@ -873,6 +875,8 @@ ChatRaw.hooks.register('before_send', () => {
     ChatRaw.ui.registerToolbarButton({ ... });  // Works!
 })(window.ChatRawPlugin);
 ```
+
+7. **No emoji**: Do **not** use emoji anywhere in your plugin — not in code, UI labels, toast messages, modal content, manifest `name`/`description`, or any user-facing text. Plugins that use emoji will not pass review.
 
 ---
 
@@ -1674,6 +1678,8 @@ button.onclick = async () => {
     ```
     - 使用内容稳定性检测（防抖 ~800ms）确保流式输出完成
 
+16. **禁止使用 emoji**：插件中任何地方（代码、UI、toast、模态框内容、manifest）均不得使用 emoji，使用 emoji 的插件将无法通过审核。
+
 ### 常见陷阱
 
 开发时请注意避免以下常见错误：
@@ -1745,6 +1751,8 @@ ChatRaw.hooks.register('before_send', () => {
     ChatRaw.ui.registerToolbarButton({ ... });  // 正常工作！
 })(window.ChatRawPlugin);
 ```
+
+7. **禁止使用 emoji**：插件中**严禁**在任何地方使用 emoji，包括代码、UI 文案、toast 提示、模态框内容、manifest 的 `name`/`description` 以及任何面向用户的文字。使用 emoji 的插件将无法通过审核。
 
 ---
 

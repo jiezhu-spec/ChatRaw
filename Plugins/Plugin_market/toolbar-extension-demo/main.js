@@ -124,7 +124,7 @@
             loading: false
         }, PLUGIN_ID);
         
-        ChatRaw.utils?.showToast?.('✅ ' + t('idleState'), 'success');
+        ChatRaw.utils?.showToast?.(t('idleState'), 'success');
     }
     
     // Button 3: Open fullscreen modal
