@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "name": {
     "en": "Toolbar Extension Demo",
-    "zh": "扩展插件开发 DEMO"
+    "zh": "工具栏扩展演示"
   },
   "description": {
     "en": "Demonstrates the new toolbar button extension API, including button registration, active/loading states, and fullscreen modal features.",
