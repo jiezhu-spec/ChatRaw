@@ -48,15 +48,14 @@ comment（汇总报告，发表/更新 PR 评论）
 
 ### Secrets（必须）
 
-- `GEMINI_API_KEY`：Gemini API Key
-- `OPENAI_API_KEY`：OpenAI 兼容 API Key（备用）
+- `OPENAI_API_KEY`：OpenAI 兼容 API Key（推荐，支持 DeepSeek / OpenAI / 国产模型）
+- `GEMINI_API_KEY`：Gemini API Key（备用）
 
 ### Variables（可选）
 
-- `ENABLE_AI_REVIEW`：设为 `false` 关闭 AI 审查
+- `OPENAI_BASE_URL`：API 地址。**DeepSeek** 填 `https://api.deepseek.com/v1`
+- `OPENAI_MODEL`：模型名。**DeepSeek** 填 `deepseek-chat` 或 `deepseek-coder`
 - `GEMINI_MODEL_FALLBACK`：Gemini 模型，默认 `gemini-2.5-flash`
-- `OPENAI_BASE_URL`：OpenAI 兼容 API 地址
-- `OPENAI_MODEL`：OpenAI 模型，默认 `gpt-4o-mini`
 
 ### Labels（需预先创建）
 

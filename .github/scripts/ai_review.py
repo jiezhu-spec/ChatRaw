@@ -88,20 +88,28 @@ def call_gemini(prompt: str) -> str | None:
             model=model,
             contents=prompt,
         )
-        if response and response.text:
-            return response.text.strip()
+        if response:
+            text = getattr(response, "text", None)
+            if text:
+                return str(text).strip()
+            if hasattr(response, "candidates") and response.candidates:
+                c = response.candidates[0]
+                if hasattr(c, "content") and c.content and hasattr(c.content, "parts"):
+                    for p in c.content.parts:
+                        if hasattr(p, "text") and p.text:
+                            return str(p.text).strip()
         return None
     except Exception:
         return None
 
 
 def call_openai_compatible(prompt: str) -> str | None:
-    """Call OpenAI-compatible API, return response text or None on failure."""
+    """Call OpenAI-compatible API (DeepSeek/OpenAI/国产模型等)."""
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
         return None
-    base_url = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1")
-    model = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
+    base_url = os.environ.get("OPENAI_BASE_URL") or "https://api.openai.com/v1"
+    model = os.environ.get("OPENAI_MODEL") or "gpt-4o-mini"
     try:
         from openai import OpenAI
 
@@ -139,12 +147,13 @@ def main() -> int:
 
     prompt = build_prompt(files, diff)
 
-    result = call_gemini(prompt)
+    # 优先使用 OpenAI 兼容接口（DeepSeek/OpenAI/国产模型等），否则用 Gemini
+    result = call_openai_compatible(prompt)
     if result is None:
-        result = call_openai_compatible(prompt)
+        result = call_gemini(prompt)
     if result is None:
         result = (
-            "⚠️ AI 审查未执行：请配置 `GEMINI_API_KEY` 或 `OPENAI_API_KEY`。"
+            "⚠️ AI 审查未执行：请配置 `OPENAI_API_KEY`（DeepSeek 等）或 `GEMINI_API_KEY`。"
         )
 
     write_result(result)
