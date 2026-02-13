@@ -32,7 +32,6 @@
 
 多平台镜像（linux/amd64, linux/arm64）将发布至：
 - Docker Hub: `massif01/chatraw:v2.1.2`
-- GitHub Container Registry: `ghcr.io/massif-01/chatraw:v2.1.2`
 
 ## 如何更新 / How to Update
 

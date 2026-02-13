@@ -10,7 +10,7 @@ jobs:
     name: Build multi-platform Docker image
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write  # read for checkout, write for creating releases
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,3 +41,11 @@ jobs:
           tags: |
             massif01/chatraw:${{ steps.version.outputs.VERSION }}
             massif01/chatraw:latest
+
+      - name: Create Release
+        if: hashFiles(format('RELEASE_{0}.md', github.ref_name)) != ''
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          body_path: RELEASE_${{ github.ref_name }}.md
+          generate_release_notes: false
