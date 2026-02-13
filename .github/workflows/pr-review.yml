@@ -216,9 +216,7 @@ jobs:
     name: Comment Report
     runs-on: ubuntu-latest
     needs: [security-check, auto-check, ai-review]
-    if: |
-      always() &&
-      needs.security-check.outputs.safe_to_run == 'true'
+    if: always() && github.event.pull_request != null
     steps:
       - name: Download AI review artifact
         uses: actions/download-artifact@v4
@@ -231,6 +229,7 @@ jobs:
         with:
           script: |
             const fs = require('fs');
+            const safeToRun = '${{ needs.security-check.outputs.safe_to_run }}' === 'true';
             let aiResult = 'AI 审查未执行或未产生结果。';
             if (fs.existsSync('ai_review_result.txt')) {
               aiResult = fs.readFileSync('ai_review_result.txt', 'utf8');
@@ -245,6 +244,10 @@ jobs:
             const additions = files.reduce((a, f) => a + (f.additions || 0), 0);
             const deletions = files.reduce((a, f) => a + (f.deletions || 0), 0);
             const autoOk = '${{ needs.auto-check.outputs.syntax_ok }}' === 'true';
+            if (!safeToRun) {
+              aiResult = '⚠️ 本 PR 修改了 `.github/workflows` 或 `.github/scripts`，出于安全考虑已跳过 AI 审查。合并后，后续仅修改业务代码的 PR 将获得完整审查。';
+            }
+            const staticStatus = !safeToRun ? '⏭️ 已跳过（敏感文件变更）' : (autoOk ? '✅ 通过' : '❌ 未通过');
             const body = [
               '## 🤖 自动审查报告',
               '',
@@ -254,7 +257,7 @@ jobs:
               '- 删除行：-' + deletions,
               '',
               '### 静态检查',
-              autoOk ? '✅ 通过' : '❌ 未通过',
+              staticStatus,
               '',
               '### AI 代码审查',
               aiResult,
