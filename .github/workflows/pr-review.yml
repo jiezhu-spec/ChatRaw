@@ -1,0 +1,263 @@
+name: PR Review
+
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'backend/**/*.py'
+      - 'backend/requirements.txt'
+      - 'Dockerfile'
+      - 'docker-compose.yml'
+      - '.github/workflows/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+env:
+  BASE_REF: ${{ github.event.pull_request.base.ref || github.ref_name }}
+
+jobs:
+  security-check:
+    name: Security Check
+    runs-on: ubuntu-latest
+    if: github.event.pull_request
+    outputs:
+      safe_to_run: ${{ steps.check.outputs.safe_to_run }}
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          fetch-depth: 0
+
+      - name: Fetch base branch
+        run: git fetch origin ${{ env.BASE_REF }}
+
+      - name: Check sensitive files
+        id: check
+        run: |
+          CHANGED=$(git diff --name-only origin/${{ env.BASE_REF }}...HEAD -- '.github/workflows/*.yml' '.github/scripts/*.py' 2>/dev/null || true)
+          if [ -n "$CHANGED" ]; then
+            echo "safe_to_run=false" >> $GITHUB_OUTPUT
+            echo "⚠️ 敏感文件被修改 (.github/workflows 或 .github/scripts)，跳过 AI 审查"
+          else
+            echo "safe_to_run=true" >> $GITHUB_OUTPUT
+          fi
+
+  auto-check:
+    name: Auto Check
+    runs-on: ubuntu-latest
+    needs: security-check
+    if: needs.security-check.outputs.safe_to_run == 'true'
+    outputs:
+      has_py_changes: ${{ steps.check.outputs.has_py_changes }}
+      syntax_ok: ${{ steps.check.outputs.syntax_ok }}
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install flake8
+        run: pip install flake8
+
+      - name: Static check (syntax + Flake8)
+        id: check
+        run: |
+          git fetch origin ${{ env.BASE_REF }}
+          FILES=$(git diff --name-only origin/${{ env.BASE_REF }}...HEAD -- '*.py' 'backend/**/*.py' 2>/dev/null || true)
+          if [ -z "$FILES" ]; then
+            echo "has_py_changes=false" >> $GITHUB_OUTPUT
+            echo "syntax_ok=true" >> $GITHUB_OUTPUT
+            echo "## Static Check: 无 Python 变更" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+          echo "has_py_changes=true" >> $GITHUB_OUTPUT
+          SYNTAX_OK=true
+          for f in $FILES; do
+            if [ -f "$f" ]; then
+              python -m py_compile "$f" 2>/dev/null || SYNTAX_OK=false
+            fi
+          done
+          flake8 --select=E9,F63,F7,F82 $FILES 2>/dev/null || SYNTAX_OK=false
+          echo "syntax_ok=$SYNTAX_OK" >> $GITHUB_OUTPUT
+          echo "## Static Check: 已检查 $(echo $FILES | wc -w) 个文件" >> $GITHUB_STEP_SUMMARY
+
+  ai-review:
+    name: AI Review
+    runs-on: ubuntu-latest
+    needs: [security-check, auto-check]
+    if: |
+      always() &&
+      needs.security-check.outputs.safe_to_run == 'true' &&
+      needs.auto-check.outputs.has_py_changes == 'true' &&
+      needs.auto-check.result == 'success' &&
+      (vars.ENABLE_AI_REVIEW != 'false')
+    steps:
+      - name: Checkout scripts from default branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          sparse-checkout: |
+            .github/scripts
+          path: main-scripts
+
+      - name: Checkout PR code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          path: pr-code
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install AI dependencies
+        run: pip install google-genai openai httpx
+
+      - name: Run AI review
+        working-directory: pr-code
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_BASE_REF: ${{ env.BASE_REF }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_MODEL_FALLBACK: ${{ vars.GEMINI_MODEL_FALLBACK || 'gemini-2.5-flash' }}
+          OPENAI_BASE_URL: ${{ vars.OPENAI_BASE_URL || '' }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-4o-mini' }}
+        run: |
+          python ../main-scripts/.github/scripts/ai_review.py
+
+      - name: Upload AI review result
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-review-result
+          path: pr-code/ai_review_result.txt
+
+  labeler:
+    name: Labeler
+    runs-on: ubuntu-latest
+    if: github.event.pull_request
+    steps:
+      - name: Apply labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+            });
+            const labels = new Set();
+            for (const f of files) {
+              const fn = f.filename;
+              if (fn.includes('backend/') && !fn.includes('backend/static/')) labels.add('backend');
+              if (fn.includes('Plugins/')) labels.add('plugins');
+              if (fn.includes('backend/static/')) labels.add('frontend');
+              if (fn.includes('docs/')) labels.add('documentation');
+              if (fn.includes('.github/')) labels.add('ci/cd');
+              if (fn.includes('scripts/')) labels.add('scripts');
+            }
+            const additions = files.reduce((a, f) => a + (f.additions || 0), 0);
+            const deletions = files.reduce((a, f) => a + (f.deletions || 0), 0);
+            const total = additions + deletions;
+            if (total < 50) labels.add('size/S');
+            else if (total < 200) labels.add('size/M');
+            else if (total < 500) labels.add('size/L');
+            else labels.add('size/XL');
+            const allLabels = [...labels];
+            if (allLabels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                labels: allLabels,
+              });
+            }
+
+  comment:
+    name: Comment Report
+    runs-on: ubuntu-latest
+    needs: [security-check, auto-check, ai-review]
+    if: |
+      always() &&
+      needs.security-check.outputs.safe_to_run == 'true'
+    steps:
+      - name: Download AI review artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ai-review-result
+        continue-on-error: true
+
+      - name: Create or update comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let aiResult = 'AI 审查未执行或未产生结果。';
+            if (fs.existsSync('ai_review_result.txt')) {
+              aiResult = fs.readFileSync('ai_review_result.txt', 'utf8');
+            }
+            const prNum = context.payload.pull_request?.number || context.issue?.number;
+            if (!prNum) return;
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNum,
+            });
+            const additions = files.reduce((a, f) => a + (f.additions || 0), 0);
+            const deletions = files.reduce((a, f) => a + (f.deletions || 0), 0);
+            const autoOk = '${{ needs.auto-check.outputs.syntax_ok }}' === 'true';
+            const body = `## 🤖 自动审查报告
+
+### 变更统计
+- 变更文件：${files.length}
+- 新增行：+${additions}
+- 删除行：-${deletions}
+
+### 静态检查
+${autoOk ? '✅ 通过' : '❌ 未通过'}
+
+### AI 代码审查
+${aiResult}
+
+---
+*本报告由 CI 自动生成*`;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNum,
+            });
+            const bot = comments.find(c => c.user.type === 'Bot' && c.body.includes('## 🤖 自动审查报告'));
+            if (bot) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: bot.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNum,
+                body,
+              });
+            }
